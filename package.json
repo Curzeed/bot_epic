@@ -1,0 +1,41 @@
+{
+  "name": "bot",
+  "version": "1.0.0",
+  "description": "bot discord en node js",
+  "main": "index.js",
+  "scripts": {
+    "test": "node"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Curzeed/Bot.git"
+  },
+  "keywords": [
+    "bot",
+    "javascript",
+    "nodeJs"
+  ],
+  "author": "Curze",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Curzeed/Bot/issues"
+  },
+  "homepage": "https://github.com/Curzeed/Bot#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.7.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "blagues-api": "^2.1.0",
+    "canvacord": "^5.4.8",
+    "cron": "^2.1.0",
+    "discord-api-types": "^0.24.0",
+    "discord-rock-paper-scissor": "^1.2.1",
+    "discord.js": "^13.2.0",
+    "mysql": "^2.18.1",
+    "node": "^14.17.3",
+    "node-cron": "^3.0.2",
+    "node-schedule": "^2.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.1.0"
+  }
+}
