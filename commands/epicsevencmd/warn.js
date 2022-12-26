@@ -6,15 +6,18 @@ module.exports = {
     data : new SlashCommandBuilder()
     .setName('warn')
     .setDescription('Permet de mettre un avertissement à un Membre')
-    .addStringOption(opt => opt.setName('membre').setDescription('Nom du membre').setRequired(true)),
+    .addMentionableOption(opt => opt.setName('membre').setDescription('Nom du membre').setRequired(true))
+    .addStringOption(opt => opt.setName('nombre').setRequired(true).setDescription('Nombre de warns')),
  
     async execute (interaction) {
-        const resUser = interaction.options.getString('membre').toLowerCase();
+        const resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
+        const number = interaction.options.getString('nombre');
+        
         dbFunctions.getUsers(resUser, (memberUser) => {
             if(memberUser){
                 if (dbFunctions.isAdmin(interaction.member)){
                     try{
-                        dbFunctions.giveWarn(resUser, (member) => {
+                        dbFunctions.giveWarn(resUser,number, (member) => {
                             if(member[0].score >= 2){
                                 return interaction.reply(`${strUcFirst(member[0].name)} possède désormais ${member[0].warn++} warns ! \nPour rappel au troisième warn il sera banni de la guilde`)
                             }

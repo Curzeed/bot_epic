@@ -5,11 +5,11 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('add')
         .setDescription("Ajout d'un membre dans la liste des gdg")
-        .addStringOption(option => option.setName('membre').setDescription('Ajouter un membre').setRequired(true))
+        .addMentionableOption(option => option.setName('membre').setDescription('Ajouter un membre').setRequired(true))
         .addStringOption(option=> option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark',"1"],["Light","2"], ["Wilda", "3"]]).setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
-        let resUser = interaction.options.getString('membre').toLowerCase();
+        let resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
         if (dbFunctions.isAdmin(interaction.member)) {
         dbFunctions.getUsers(resUser, (member) => {
                 if (!member) {

@@ -9,10 +9,10 @@ module.exports = {
             .setDescription("Balancer une blague au hasard"),
             async execute(interaction){
                 const embed = new MessageEmbed()
-                .setAuthor("Le Mage Noir en personne","https://risibank.fr/cache/stickers/d1425/142566-full.jpg", "https://risibank.fr/cache/stickers/d1425/142566-full.jpg")
+                .setAuthor("Poti clown","https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg", "https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg")
                 .setColor('RANDOM')
-                .setThumbnail('https://risibank.fr/cache/stickers/d1425/142566-full.jpg')
-                .setImage('https://risibank.fr/cache/stickers/d1425/142566-full.jpg');
+                .setThumbnail('https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg')
+                .setImage('https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg');
                 await jokess.random().then(data =>{
                     embed.setTitle(data.joke),
                     embed.setDescription(data.answer)

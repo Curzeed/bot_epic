@@ -9,11 +9,11 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('remove')
         .setDescription("Supprimer un membre de la liste ")
-        .addStringOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
+        .addMentionableOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
         .addStringOption(option=> option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark',"1"],["Light","2"],['Wilda', "3"]]).setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
-        let resUser = interaction.options.getString('membre').toLowerCase();
+        let resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
             if (dbFunctions.isAdmin(interaction.member)) {
                 dbFunctions.getUsers(resUser, (member) => {
                     if(member){

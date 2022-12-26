@@ -17,7 +17,7 @@ module.exports = {
             user = interaction.user
         }
         db.singleRank(user.id,(userDb)=>{
-            const background = 'https://cdn.discordapp.com/attachments/1050435795481268345/1053707653982994442/IMG_3780.png'
+            const background = 'https://cdn.discordapp.com/attachments/1050435795481268345/1057025878326001704/IMG_20221226_210314.jpg'
             const rankCard = new canva.Rank()
             .setAvatar(user.displayAvatarURL({format : "png", size : 1024}))   
             .setCurrentXP(Number(userDb.currentXp))
@@ -26,7 +26,6 @@ module.exports = {
             .setUsername(user.username)
             .setStatus("online")
             .setLevel(Number(userDb.level))
-            .setRankColor('#800303')
             .setBackground('IMAGE', background)
             .setDiscriminator(user.discriminator);
             db.getRank((users)=>{

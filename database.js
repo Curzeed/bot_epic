@@ -56,8 +56,8 @@ module.exports = {
             callback(res)
         })
     },
-    giveWarn : function (member,callback){
-        pool.query(`UPDATE member SET warn = warn + 1 WHERE name = '${member}'`,(err,res) => {
+    giveWarn : function (member, number,callback){
+        pool.query(`UPDATE member SET warn = warn ${number} WHERE name = '${member}'`,(err,res) => {
             if (err) throw err;
         })
         pool.query(`SELECT * FROM member WHERE name = '${member}'`, (err, res) => {
@@ -185,5 +185,17 @@ module.exports = {
           callback(rows[0])
         }
       )  
+    },
+    addBirthday : async function (user_id,birthday) {
+      pool.query(`
+        UPDATE users SET birthday = '${birthday}' WHERE id = '${user_id}'
+      `, (err) => {
+        if(err) throw err;
+      })
+    },
+    getBirthdays : async function (date){
+      await pool.query(
+        `SELECT (birthday) FROM users WHERE `
+      )
     }
 }    

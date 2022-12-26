@@ -1,7 +1,4 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const db = require('../../getConnection');
-const pool = db.getPool();
-const {MessageEmbed} = require("discord.js");
 const dbFunctions = require('../../database')
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
@@ -9,12 +6,12 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('score')
         .setDescription("Ajouter du score à une personne ! (Pour retirer juste rajouter - devant la valeur)")
-        .addStringOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
+        .addMentionableOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
         .addStringOption(option => option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark', "1"], ["Light", "2"], ['Wilda', '3']]).setRequired(true))
         .addNumberOption(option => option.setName('points').setDescription('Entrez les points à ajouter').setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
-        let resUser = interaction.options.getString('membre').toLowerCase();
+        let resUser = interaction.options.getString('membre').user.username.toLowerCase();
         let points = interaction.options.getNumber('points');
             if (dbFunctions.isAdmin(interaction.member)) {
                 dbFunctions.getUsers(resUser, (member) => {
