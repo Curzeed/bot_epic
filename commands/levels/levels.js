@@ -6,15 +6,14 @@ const secondPlace = "🥈 ";
 const thirdPlace = "🥉 ";
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 module.exports = {
- 
     data : new SlashCommandBuilder()
     .setName('levels')
     .setDescription('Global classement'),
- 
+    
     async execute (interaction) {
         const embed = new MessageEmbed()
         .setImage("https://wesportfr.com/wp-content/uploads/2021/03/HoF2021.jpg")
-        .setTitle('Classement de Xélorogie');
+        .setTitle('Classement du discord');
         if(interaction.user.bot) return;
         await dbFunc.getRank((users)=>{
             users.forEach((user, i)=>{

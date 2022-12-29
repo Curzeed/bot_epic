@@ -12,13 +12,10 @@ module.exports = {
                 .setAuthor("Poti clown","https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg", "https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg")
                 .setColor('RANDOM')
                 .setThumbnail('https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg')
-                .setImage('https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg');
-                await jokess.random().then(data =>{
+                await jokess.random().then(data => {
                     embed.setTitle(data.joke),
                     embed.setDescription(data.answer)
                 });
                 await interaction.reply({embeds: [embed]});
-            
             }
-        
 }

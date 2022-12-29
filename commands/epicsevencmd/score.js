@@ -16,9 +16,14 @@ module.exports = {
             if (dbFunctions.isAdmin(interaction.member)) {
                 dbFunctions.getUsers(resUser, (member) => {
                     if (member) {
-                        dbFunctions.modifyScore(Number(resGuilde),resUser, points, (member) => {
-                            interaction.reply(`${strUcFirst(resUser)} a désormais ${member[0].score} points ! `)
-                        })
+                        try{
+                            dbFunctions.modifyScore(Number(resGuilde),resUser, points, (member) => {
+                                interaction.reply(`${strUcFirst(resUser)} a désormais ${member[0].score} points ! `)
+                            })
+                        }catch (err){
+                            console.log(err)
+                            interaction.reply({content : "Une erreur a été détectée ! \n" + err, ephemeral : true})
+                        }
                     } else {
                         interaction.reply("Qui est donc ce bougre ?")
                         return;

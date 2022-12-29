@@ -1,7 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const db = require('../../getConnection');
-const pool = db.getPool();
-const {MessageEmbed} = require("discord.js");
 const dbFunctions = require('../../database')
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
@@ -24,7 +22,6 @@ module.exports = {
                         interaction.reply("Qui est donc ce bougre ?")
                     }
                 })
-                
             }else{
                 dbFunctions.isNotAdmin(interaction);
             }

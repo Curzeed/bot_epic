@@ -193,9 +193,37 @@ module.exports = {
         if(err) throw err;
       })
     },
-    getBirthdays : async function (date){
+    /**
+     * 
+     * @param {Date} callback 
+     */
+    getBirthdays : async function (callback){
       await pool.query(
-        `SELECT (birthday) FROM users WHERE `
+        `SELECT (birthday,id) FROM users`,(err,rows) => {
+          callback(rows)
+        }
+      )
+    },
+    updatePlanning : async function (img){
+      await pool.query(
+        `UPDATE admin SET img = '${img}' WHERE id=1`, (err) => {
+          if (err) throw err;
+        }
+      )
+    },
+    getPlanning : async function (callback){
+      await pool.query(
+        `SELECT img FROM admin WHERE id=1`,(err,row) => {
+          if (err) throw err;
+          callback(row[0].img)
+        }
+      )
+    },
+    insertHeroes : async function (name,type, role){
+      await pool.query(
+        `INSERT INTO hero (name, type, role) VALUES ("${name}","${type}","${role}")`, (err) => {
+          if (err) throw err;
+        }
       )
     }
-}    
+  }    

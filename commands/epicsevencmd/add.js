@@ -13,8 +13,14 @@ module.exports = {
         if (dbFunctions.isAdmin(interaction.member)) {
         dbFunctions.getUsers(resUser, (member) => {
                 if (!member) {
-                    dbFunctions.addMember(resGuilde, resUser)
-                    interaction.reply(`Le membre ${strUcFirst(resUser)} a bien été ajouté ! `)
+                    try{
+                        dbFunctions.addMember(resGuilde, resUser)
+                        interaction.reply(`Le membre ${strUcFirst(resUser)} a bien été ajouté ! `)
+                    }catch (err){
+                        console.log(err)
+                        interaction.reply({content : "Une erreur a été détectée ! \n" + err, ephemeral : true})
+                    }
+                    
                 } else {
                     console.log("User already exist")
                     interaction.reply("Le membre est déjà dans la liste des membres ! ")
