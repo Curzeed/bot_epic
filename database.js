@@ -172,9 +172,9 @@ module.exports = {
           callback(rows)
         })
       },
-    setMessageReaction : async function (message_id, role_name){
+    setMessageReaction : async function (message_id, role_name, emoji){
         pool.query(
-          `INSERT INTO react_messages VALUES (${message_id}, "${role_name}")`, (err) => {
+          `INSERT INTO react_messages VALUES (${message_id}, "${role_name}", "${emoji}")`, (err) => {
             if (err) throw err
           })
     },
@@ -182,7 +182,7 @@ module.exports = {
       pool.query(
         `SELECT * from react_messages WHERE id = ${message_id}`, (err,rows) => {
           if (err) throw err
-          callback(rows[0])
+          callback(rows)
         }
       )  
     },

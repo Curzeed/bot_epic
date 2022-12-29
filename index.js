@@ -5,6 +5,7 @@ const fs = require('fs');
 const ranking = require('./ranking');
 const dbFunc = require('./database')
 const cronTask = require('./cronTask')
+const hash = require('object-hash')
 // Create a new client instance
 const client = new Client({ 
 intents: 
@@ -81,6 +82,7 @@ client.on('guildMemberAdd', async (member) =>  {
 client.on('messageReactionAdd', async (reaction, user) => {
 	if (user.bot){ return ;}
 	var msgReacDb
+	console.log(reaction.emoji.name)
 	var msgReaction
 	if (reaction.partial){
 		let oldMessage = await reaction.fetch()
@@ -88,19 +90,24 @@ client.on('messageReactionAdd', async (reaction, user) => {
 	}else{
 		msgReaction = reaction.message.id
 	}
-	dbFunc.getMessageReaction(msgReaction, (msg_reac) => {
-		if(!msg_reac){return}
-		msgReacDb = {
-			role : msg_reac.role_name,
-			id : Number(msg_reac.id)
-		}
-		const guild = reaction.message.guild;
-		const member = guild.members.cache.get(user.id);
-		const role = guild.roles.cache.find(r => r.name === msgReacDb.role);
-		if(member.roles.cache.find(r => r.name === role.name)){return}
-		member.roles.add(role);
-		member.createDM().then( dmMessage => {
-			dmMessage.send({content : "Je t'ai ajouté le rôle : " + role.name})
+	dbFunc.getMessageReaction(msgReaction, (msgs_reac) => {
+		if(!msgs_reac){return}
+		msgs_reac.forEach((msgReac) => {
+			msgReacDb = {
+				role : msgReac.role_name,
+				id : Number(msgReac.id),
+				emoji_name : msgReac.emoji
+			}
+			if(msgReacDb.emoji_name == hash(reaction.emoji.name)){
+				const guild = reaction.message.guild;
+				const member = guild.members.cache.get(user.id);
+				const role = guild.roles.cache.find(r => r.name === msgReacDb.role);
+				if(member.roles.cache.find(r => r.name === role.name)){return}
+				member.roles.add(role);
+				member.createDM().then( dmMessage => {
+					dmMessage.send({content : "Je t'ai ajouté le rôle : " + role.name})
+				})
+			}
 		})
 	})
 })
@@ -115,19 +122,24 @@ client.on('messageReactionRemove', async (reaction, user) => {
 	}else{
 		msgReaction = reaction.message.id
 	}
-	dbFunc.getMessageReaction(msgReaction, async (msg_reac) => {
-		if(!msg_reac){return}
-		msgReacDb = {
-			role : msg_reac.role_name,
-			id : Number(msg_reac.id)
-		}
-		const guild = reaction.message.guild;
-		const member = guild.members.cache.get(user.id);
-		const role = guild.roles.cache.find(role => role.name === msgReacDb.role);
-		if(!member.roles.cache.find(r => r.name === role.name)){return}
-		let nwMember = await member.roles.remove(role);
-		nwMember.createDM().then( dmMessage => {
-			dmMessage.send({content : "Je t'ai retiré le rôle : " + role.name})
+	dbFunc.getMessageReaction(msgReaction, async (msgs_reac) => {
+		if(!msgs_reac){return}
+		msgs_reac.forEach(async (msg_reac) => {
+			msgReacDb = {
+				role : msg_reac.role_name,
+				id : Number(msg_reac.id),
+				emoji_name : msg_reac.emoji
+			}
+			if(msgReacDb.emoji_name == hash(reaction.emoji.name)){
+				const guild = reaction.message.guild;
+				const member = guild.members.cache.get(user.id);
+				const role = guild.roles.cache.find(role => role.name === msgReacDb.role);
+				if(!member.roles.cache.find(r => r.name === role.name)){return}
+				let nwMember = await member.roles.remove(role);
+				nwMember.createDM().then( dmMessage => {
+					dmMessage.send({content : "Je t'ai retiré le rôle : " + role.name})
+				})
+			}
 		})
 	})	
 })

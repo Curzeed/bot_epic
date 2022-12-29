@@ -1,5 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const dbFunc = require('../../database')
+const hash = require('object-hash')
 module.exports = {
  
     data : new SlashCommandBuilder()
@@ -18,7 +19,7 @@ module.exports = {
         const emoji = interaction.options.getString('emoji')
         try{
             const messageResolvable = await channelResolvable.messages.fetch(msgId)
-            await dbFunc.setMessageReaction(messageResolvable.id, role.name)
+            await dbFunc.setMessageReaction(messageResolvable.id, role.name, hash(emoji))
             messageResolvable.react(emoji)
         }catch (error){
             return interaction.reply({content :"L'id du message n'est pas bon ou ne concorde pas avec le channel donné", ephemeral : true})
