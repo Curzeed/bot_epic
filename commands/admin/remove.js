@@ -11,7 +11,6 @@ module.exports = {
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
         let resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
-        console.log(dbFunctions.isAdmin(interaction.member))
             if (dbFunctions.isAdmin(interaction.member)) {
                 dbFunctions.getUsers(resUser, (member) => {
                     if(member){
