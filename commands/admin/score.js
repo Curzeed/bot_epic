@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions')
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
 module.exports = {

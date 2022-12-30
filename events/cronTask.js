@@ -1,7 +1,7 @@
 const {Client} = require('discord.js')
 const cron = require('cron')
-const dbFunctions = require('./database')
-const {general_test} = require("./config.json")
+const dbFunctions = require('../database/dbFunctions')
+const {general_test} = require("../config.json")
 /**
  * 
  * @param {Client} client 
@@ -9,11 +9,13 @@ const {general_test} = require("./config.json")
 module.exports = async function (client) {
     let bdayCron = new cron.CronJob('0 10 * * *',()=>{
         dbFunctions.getBirthdays(( birthdays => {
+            if(!birthdays) return
             birthdays.forEach(async (birthday) => {
-                if(Date(birthday).getDate() === new Date().getDate() && Date(birthday).getMonth() === new Date().getMonth()){
+                if(new Date(Number(birthday.birthday) == "Invalid Date")) return;
+                if(new Date(Number(birthday.birthday)).getDate() === new Date().getDate() && new Date(Number(birthday.birthday)).getMonth() === new Date().getMonth()){
                     const user = await client.users.fetch(birthday.id)
                     const channel_general = await client.channels.fetch(general_test)
-                    channel_general.send(`C'est l'anniversaire de : ${user} ! \n Joyeux anniversaire !`)
+                    channel_general.send(`C'est l'anniversaire de : ${user} ! \nJoyeux anniversaire !`)
                 }
             })
         }))

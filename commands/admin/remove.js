@@ -1,6 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const db = require('../../getConnection');
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions')
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
 module.exports = {
@@ -12,6 +11,7 @@ module.exports = {
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
         let resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
+        console.log(dbFunctions.isAdmin(interaction.member))
             if (dbFunctions.isAdmin(interaction.member)) {
                 dbFunctions.getUsers(resUser, (member) => {
                     if(member){

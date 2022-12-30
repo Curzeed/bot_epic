@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const dbFunc = require('../../database')
+const dbFunc = require('../../database/dbFunctions')
 const {MessageEmbed} = require('discord.js')
 const firstPlace ="🥇 ";
 const secondPlace = "🥈 ";

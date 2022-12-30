@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions');
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,15 +15,14 @@ module.exports = {
                 if (!member) {
                     try{
                         dbFunctions.addMember(resGuilde, resUser)
-                        interaction.reply(`Le membre ${strUcFirst(resUser)} a bien été ajouté ! `)
+                        return interaction.reply(`Le membre ${strUcFirst(resUser)} a bien été ajouté ! `)
                     }catch (err){
                         console.log(err)
-                        interaction.reply({content : "Une erreur a été détectée ! \n" + err, ephemeral : true})
+                        return interaction.reply({content : "Une erreur a été détectée ! \n" + err, ephemeral : true})
                     }
                     
                 } else {
-                    console.log("User already exist")
-                    interaction.reply("Le membre est déjà dans la liste des membres ! ")
+                    return interaction.reply("Le membre est déjà dans la liste des membres ! ")
                     return;
                 }
         });

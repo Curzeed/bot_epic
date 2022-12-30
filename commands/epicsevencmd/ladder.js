@@ -3,7 +3,7 @@ const {MessageEmbed} = require("discord.js");
 const firstPlace ="🥇 ";
 const secondPlace = "🥈 ";
 const thirdPlace = "🥉 ";
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions')
 function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 
 module.exports ={
@@ -33,7 +33,7 @@ module.exports ={
                                 embed.addField([i+1]+". "+strUcFirst(members[i].name), members[i].score.toString())
                             }
                         }
-                        interaction.reply({embeds: [embed]});
+                        return interaction.reply({embeds: [embed]});
                     })
                 }
                 catch (error) {

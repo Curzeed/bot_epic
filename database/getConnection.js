@@ -1,4 +1,4 @@
-const {host, user, password, database, port} = require('./config.json');
+const {host, user, password, database, port} = require('../config.json');
 const mysql = require('mysql');
 var pool;
 module.exports = {

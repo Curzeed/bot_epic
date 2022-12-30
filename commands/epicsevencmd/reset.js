@@ -1,7 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const db = require('../../getConnection');
-const pool = db.getPool();
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions')
 module.exports = {
     data: new SlashCommandBuilder()
     .setName("reset")

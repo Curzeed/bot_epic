@@ -2,9 +2,9 @@
 const { Client, Intents, Collection, MessageEmbed, MessageReaction } = require('discord.js');
 const { token } = require('./config.json');
 const fs = require('fs');
-const ranking = require('./ranking');
-const dbFunc = require('./database')
-const cronTask = require('./cronTask')
+const ranking = require('./events/ranking');
+const dbFunc = require('./database/dbFunctions')
+const cronTask = require('./events/cronTask')
 const hash = require('object-hash')
 // Create a new client instance
 const client = new Client({ 
@@ -20,11 +20,8 @@ intents:
 		'MESSAGE', 'CHANNEL', 'REACTION'
 	],
 });
-
-
 // Création d'une collection à l'instance du client
 client.commands = new Collection();
-
 // cron task
 cronTask(client)
 const commandFolders = fs.readdirSync('./commands');

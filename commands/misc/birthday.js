@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const dbFunctions = require('../../database')
+const dbFunctions = require('../../database/dbFunctions')
 module.exports = {
  
     data : new SlashCommandBuilder()
@@ -9,7 +9,6 @@ module.exports = {
  
     async execute (interaction) {
         let birthday = Date.parse(interaction.options.getString('birthday').toLowerCase().trim())
-        console.log(birthday)
         if(isNaN(birthday)){
             return interaction.reply({content : "Le format de date n'est pas bon ! \n Voici un exemple : 2000-12-28 (yyyy-mm-jj)", ephemeral : true})
         }

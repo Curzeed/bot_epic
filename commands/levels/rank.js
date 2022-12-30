@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const db = require('../../database')
+const db = require('../../database/dbFunctions')
 const canva = require('canvacord')
 const {MessageAttachment} = require('discord.js')
 module.exports = {

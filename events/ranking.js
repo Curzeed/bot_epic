@@ -1,4 +1,4 @@
-const dbFunc = require('./database')
+const dbFunc = require('../database/dbFunctions')
 
 module.exports = async function (client,message) {
         var userDb

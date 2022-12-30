@@ -17,7 +17,7 @@ module.exports = {
         }
     },
     isAdmin : function (member){
-        return member.roles.cache.some(r => r.name === 'dev')
+        return member.roles.cache.some(r => r.name === 'dev' || r.name === 'Modération E7')
     },
     isNotAdmin : function(interaction){
         const embed = new MessageEmbed()
@@ -199,7 +199,7 @@ module.exports = {
      */
     getBirthdays : async function (callback){
       await pool.query(
-        `SELECT (birthday,id) FROM users`,(err,rows) => {
+        `SELECT birthday,id FROM users`,(err,rows) => {
           callback(rows)
         }
       )
