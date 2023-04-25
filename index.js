@@ -5,7 +5,8 @@ const fs = require('fs');
 const ranking = require('./events/ranking');
 const dbFunc = require('./database/dbFunctions')
 const cronTask = require('./events/cronTask')
-const hash = require('object-hash')
+const hash = require('object-hash');
+const tickets_create = require('./events/tickets_create');
 // Create a new client instance
 const client = new Client({ 
 intents: 
@@ -13,7 +14,7 @@ intents:
 		Intents.FLAGS.GUILDS,
 		Intents.FLAGS.GUILD_MESSAGES,
 		Intents.FLAGS.GUILD_MEMBERS,
-		Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+		Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
 	],
 	partials: 
 	[
@@ -39,9 +40,15 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
-	if(!interaction.user.username === "Curze"){
-		return interaction.reply({ content: 'En maintenance !', ephemeral: true });
-	}
+	if(interaction.isButton()){
+		console.log(interaction.customId)
+		if(interaction.customId === 'ticket_create'){
+			tickets_create(client,interaction);
+		}
+		if(interaction.customId === 'ticket_close'){
+			interaction.channel.delete();
+		}
+	} 
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);

@@ -24,6 +24,7 @@
   "dependencies": {
     "@discordjs/builders": "^0.7.0",
     "@discordjs/rest": "^0.1.0-canary.0",
+    "ai-chatbot": "^1.1.4",
     "bcrypt": "^5.1.0",
     "blagues-api": "^2.1.0",
     "canvacord": "^5.4.8",
@@ -34,7 +35,8 @@
     "mysql": "^2.18.1",
     "node-cron": "^3.0.2",
     "node-schedule": "^2.0.0",
-    "object-hash": "^3.0.0"
+    "object-hash": "^3.0.0",
+    "openai": "^3.2.1"
   },
   "devDependencies": {
     "eslint": "^8.1.0"

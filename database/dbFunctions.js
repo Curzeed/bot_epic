@@ -256,4 +256,26 @@ module.exports = {
         }
       )
     },
+    getHeroes : async function (){
+      return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM hero`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+    },
+    getuser : async function (name){
+      return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM users WHERE name = '${name}'`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+    },
   }    
