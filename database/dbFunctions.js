@@ -234,13 +234,16 @@ module.exports = {
         }
       )
     },
-    getHero : async function (name,callback){
-      await pool.query(
-        `SELECT * FROM hero where name = '${name}'`, (err,rows) => {
-          if (err) throw err;
-          callback(rows)
-        }
-      )
+    getHero : async function (name){
+      return new Promise((resolve, reject) => {
+        pool.query(`SELECT * FROM hero where name = '${name}'`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
     },
     updateHero : async function (param,name,value){
       await pool.query(
@@ -256,16 +259,16 @@ module.exports = {
         }
       )
     },
-    getHeroes : async function (){
-      return new Promise((resolve, reject) => {
-        pool.query(`SELECT * FROM hero`, (err, rows) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(rows);
-            }
+    getHeroes : async function (index){
+        return new Promise((resolve, reject) => {
+            pool.query(`SELECT * FROM hero ORDER BY name ASC LIMIT 25 OFFSET ${index} `, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
         });
-    });
     },
     getuser : async function (name){
       return new Promise((resolve, reject) => {
@@ -274,6 +277,17 @@ module.exports = {
                 reject(err);
             } else {
                 resolve(rows);
+            }
+        });
+    });
+    },
+    getHeroCount :  async function (){
+      return new Promise((resolve, reject) => {
+        pool.query(`SELECT COUNT(*) FROM hero`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows[0]['COUNT(*)']);
             }
         });
     });

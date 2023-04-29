@@ -7,6 +7,8 @@ const dbFunc = require('./database/dbFunctions')
 const cronTask = require('./events/cronTask')
 const hash = require('object-hash');
 const tickets_create = require('./events/tickets_create');
+const select_heroes = require('./events/select_heroes');
+const paginationHeroes = require('./events/paginationHeroes');
 // Create a new client instance
 const client = new Client({ 
 intents: 
@@ -40,15 +42,21 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async interaction => {
+	if(interaction.isSelectMenu()){
+		await select_heroes(client,interaction)
+	}
 	if(interaction.isButton()){
-		console.log(interaction.customId)
+		if(interaction.customId === 'next' || interaction.customId === 'previous'){
+			await paginationHeroes(client,interaction,interaction.customId)
+		}
 		if(interaction.customId === 'ticket_create'){
 			tickets_create(client,interaction);
 		}
 		if(interaction.customId === 'ticket_close'){
 			interaction.channel.delete();
 		}
-	} 
+
+	}
 	if (!interaction.isCommand()) return;
 
 	const command = client.commands.get(interaction.commandName);
