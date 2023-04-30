@@ -13,7 +13,6 @@ module.exports = {
                 .setColor('RANDOM')
                 .setThumbnail('https://risibank.fr/cache/medias/0/14/1425/142566/full.jpeg')
                 await jokess.random().then(data => {
-			console.log(data.joke)
                     embed.setTitle(data.joke.toString()),
                     embed.setDescription(data.answer)
                 });

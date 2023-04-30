@@ -23,20 +23,20 @@
   "homepage": "https://github.com/Curzeed/Bot#readme",
   "dependencies": {
     "@discordjs/builders": "^0.7.0",
+    "@discordjs/opus": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
-    "ai-chatbot": "^1.1.4",
     "bcrypt": "^5.1.0",
     "blagues-api": "^2.1.0",
     "canvacord": "^5.4.8",
     "cron": "^2.1.0",
     "discord-api-types": "^0.24.0",
-    "discord-rock-paper-scissor": "^1.2.1",
+    "discord-music-player": "^9.1.1",
     "discord.js": "^13.2.0",
+    "isomorphic-unfetch": "^4.0.2",
     "mysql": "^2.18.1",
     "node-cron": "^3.0.2",
     "node-schedule": "^2.0.0",
-    "object-hash": "^3.0.0",
-    "openai": "^3.2.1"
+    "object-hash": "^3.0.0"
   },
   "devDependencies": {
     "eslint": "^8.1.0"

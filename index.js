@@ -9,6 +9,10 @@ const hash = require('object-hash');
 const tickets_create = require('./events/tickets_create');
 const select_heroes = require('./events/select_heroes');
 const paginationHeroes = require('./events/paginationHeroes');
+const {Player} = require("discord-music-player");
+const eventsPlayer = require('./events/eventsPlayer');
+// You can define the Player as *client.player* to easly access it.
+
 // Create a new client instance
 const client = new Client({ 
 intents: 
@@ -17,12 +21,18 @@ intents:
 		Intents.FLAGS.GUILD_MESSAGES,
 		Intents.FLAGS.GUILD_MEMBERS,
 		Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+		Intents.FLAGS.GUILD_VOICE_STATES,
 	],
 	partials: 
 	[
 		'MESSAGE', 'CHANNEL', 'REACTION'
 	],
 });
+const player = new Player(client, {
+	leaveOnEmpty: true, // This options are optional.
+	quality : 'high',
+});
+client.player = player;
 // Création d'une collection à l'instance du client
 client.commands = new Collection();
 // cron task
@@ -166,7 +176,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 		})
 	})	
 })
-
+eventsPlayer(client)
 client.login(token);
 
 client.once('ready',() => {
