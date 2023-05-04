@@ -25,7 +25,7 @@ module.exports = {
                 content : `||${users}||`,
                 embeds : [embed]
             })
-            await interaction.reply(`Le message a bien été envoyé dans le channel : ${channel}`)
+            await interaction.reply({content:`Le message a bien été envoyé dans le channel : ${channel}`, ephemeral: true})
         }else{
             dbFunctions.isNotAdmin(interaction);
         }
