@@ -234,6 +234,13 @@ module.exports = {
         }
       )
     },
+    insertHeroesDb : async function (image, nb_stars, element, name, code){
+      await pool.query(
+        `INSERT INTO hero_db (image,nb_stars,element, name, code) VALUES ('${image}', ${nb_stars}, '${element}', "${name}", '${code}')`, (err) => {
+          if (err) throw err;
+        }
+      )
+    },
     getHero : async function (name){
       return new Promise((resolve, reject) => {
         pool.query(`SELECT * FROM hero where name = '${name}'`, (err, rows) => {
@@ -270,6 +277,17 @@ module.exports = {
             });
         });
     },
+    getAllHeroes : async function (){
+      return new Promise((resolve, reject) => {
+          pool.query(`SELECT * FROM hero ORDER BY name ASC`, (err, rows) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(rows);
+              }
+          });
+      });
+  },
     getuser : async function (name){
       return new Promise((resolve, reject) => {
         pool.query(`SELECT * FROM users WHERE name = '${name}'`, (err, rows) => {
@@ -292,4 +310,37 @@ module.exports = {
         });
     });
     },
+    getAllHeroesFromDb : async function (){
+      return new Promise((resolve, reject) => {
+          pool.query(`SELECT * FROM hero_db ORDER BY name ASC`, (err, rows) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(rows);
+              }
+          });
+      });
+    },
+    getHeroDbFromName : async function (name){
+      return new Promise((resolve, reject) => {
+          pool.query(`SELECT * FROM hero_db WHERE name = "${name}"`, (err, rows) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(rows[0]);
+              }
+          });
+      });
+    },
+    getHeroDbFromCode : async function (code){
+      return new Promise((resolve, reject) => {
+          pool.query(`SELECT * FROM hero_db WHERE code = "${code}"`, (err, rows) => {
+              if (err) {
+                  reject(err);
+              } else {
+                  resolve(rows[0]);
+              }
+          });
+      });
+    }
   }    

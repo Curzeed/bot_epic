@@ -7,7 +7,7 @@ module.exports = {
         .setName('remove')
         .setDescription("Supprimer un membre de la liste ")
         .addMentionableOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
-        .addStringOption(option=> option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark',"1"],["Light","2"],['Wilda', "3"]]).setRequired(true)),
+        .addStringOption(option=> option.setName('guilde').setDescription('Guilde du membre').addChoices({name : 'Dark', value : '1'},{name : 'Light', value : '2'},{name : 'Wilda', value : '3'}).setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');
         let resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();

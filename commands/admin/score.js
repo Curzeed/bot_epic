@@ -7,7 +7,7 @@ module.exports = {
         .setName('score')
         .setDescription("Ajouter du score à une personne ! (Pour retirer juste rajouter - devant la valeur)")
         .addMentionableOption(option => option.setName('membre').setDescription('Pseudo du membre').setRequired(true))
-        .addStringOption(option => option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark', "1"], ["Light", "2"], ['Wilda', '3']]).setRequired(true))
+        .addStringOption(option => option.setName('guilde').setDescription('Guilde du membre').addChoices({name : 'Dark', value : '1'},{name : 'Light', value : '2'},{name : 'Wilda', value : '3'}).setRequired(true))
         .addNumberOption(option => option.setName('points').setDescription('Entrez les points à ajouter').setRequired(true)),
     async execute(interaction) {
         let resGuilde = interaction.options.getString('guilde');

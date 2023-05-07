@@ -11,6 +11,7 @@ const select_heroes = require('./events/select_heroes');
 const paginationHeroes = require('./events/paginationHeroes');
 const {Player} = require("discord-music-player");
 const eventsPlayer = require('./events/eventsPlayer');
+const autocomplete = require('./events/autocomplete');
 // You can define the Player as *client.player* to easly access it.
 
 // Create a new client instance
@@ -54,6 +55,9 @@ client.once('ready', () => {
 client.on('interactionCreate', async interaction => {
 	if(interaction.isSelectMenu()){
 		await select_heroes(client,interaction)
+	}
+	if(interaction.isAutocomplete()){
+		await autocomplete(client,interaction)
 	}
 	if(interaction.isButton()){
 		if(interaction.customId === 'next' || interaction.customId === 'previous'){

@@ -6,7 +6,8 @@ module.exports = {
     .setName('updatehero')
     .setDescription('updatehero in database')
     .addStringOption(option => option.setName('name').setDescription('Name of the hero').setRequired(true))
-    .addStringOption(option => option.setName('option').setDescription('Champ à modifier').addChoices([['Nom', "name"], ["Elément", "element"], ["Nombre d'étoiles", 'nb_stars'], ["Lien du message", "message_link"], ["image","image"]]).setRequired(true))
+    
+    .addStringOption(option => option.setName('option').setDescription('Champ à modifier').addChoices({name : 'Nom', value : 'name'},{name : 'Elément', value : 'element'},{name : 'Nombre d\'étoiles', value : 'nb_stars'},{name : 'Lien du message', value : 'message_link'},{name : 'image', value : 'image'}).setRequired(true))
     .addStringOption(option => option.setName('value').setDescription('Nouvelle valeur').setRequired(true)),
 
     async execute (interaction) {

@@ -10,7 +10,7 @@ module.exports ={
     data: new SlashCommandBuilder()
         .setName('ladder')
         .setDescription("Afficher le classement de la guilde")
-        .addStringOption(option => option.setName('guilde').setDescription('Guilde du membre').addChoices([['Dark', "1"], ["Light", "2"], ['Wilda', '3']]).setRequired(true)),
+        .addStringOption(option => option.setName('guilde').setDescription('Guilde du membre').addChoices({name : 'Dark', value : '1'},{name : 'Light', value : '2'},{name : 'Wilda', value : '3'}).setRequired(true)),
         async execute(interaction){      
             let resGuilde = dbFunctions.getGuilds(Number(interaction.options.getString('guilde')));
                 try {

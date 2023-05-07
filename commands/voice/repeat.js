@@ -5,7 +5,7 @@ module.exports = {
     data : new SlashCommandBuilder()
     .setName('repeat')
     .setDescription('Répète la musique actuelle')
-    .addStringOption( opt => opt.setDescription('Queue ou song').setName('type').addChoices([["File d'attente", 'queue'],['Musique actuelle', 'song']]).setRequired(true)),
+    .addStringOption( opt => opt.setDescription('Queue ou song').setName('type').addChoices({name : "File d'attente", value: 'queue'},{name:"Musique actuelle", value: 'song'}).setRequired(true)),
  
     async execute (interaction,client) {
         const type = interaction.options.getString('type')
