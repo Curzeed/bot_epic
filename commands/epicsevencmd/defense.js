@@ -45,7 +45,7 @@ module.exports = {
             arr.push({ids: key, stats: value});
         }
         arr.sort((a, b) => b.stats.w - a.stats.w);
-        const top15 = arr.slice(0,8)
+        const top15 = arr.slice(0,6)
         for(let i = 0; i < top15.length; i++){
             let ids = arr[i].ids.split(",")
             var heroes = []
@@ -59,8 +59,11 @@ module.exports = {
             embed.setColor('#0099ff')
             embed.addFields(
                 {name : i + 1 + '. ' +heroes[0].name, value : '\u200B', inline : true},
-                {name : heroes[1].name, value : String(calcPercentage) +'%' + ' ('+top15[i].stats.w+"W/"+top15[i].stats.l+"L)", inline : true},
-                {name : heroes[2].name, value : '\u200B', inline : true},
+                {name : heroes[1].name, value : '\u200B', inline : true},
+                {name : heroes[2].name, value : String(calcPercentage) +'%' + ' ('+top15[i].stats.w+"W/"+top15[i].stats.l+"L)", inline : true},
+            )
+            embed.addFields(
+                {name : '\u200B', value : '\u200B', inline : false},
             )
         }
         await interaction.reply({embeds : [embed]});
