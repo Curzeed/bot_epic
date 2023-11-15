@@ -1,6 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const dbFunctions = require('../../database/dbFunctions');
-const heroData = require('../../heroData.json');
+const heroData = require('../../herodata.json');
 module.exports = {
  
     data : new SlashCommandBuilder()

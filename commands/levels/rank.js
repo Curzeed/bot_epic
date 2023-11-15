@@ -2,6 +2,7 @@ const {SlashCommandBuilder} = require('@discordjs/builders');
 const db = require('../../database/dbFunctions')
 const canva = require('canvacord')
 const {MessageAttachment} = require('discord.js')
+function strUcFirst(a){return (a+'').charAt(0).toUpperCase()+a.substr(1);}
 module.exports = {
  
     data : new SlashCommandBuilder()
@@ -23,7 +24,7 @@ module.exports = {
             .setCurrentXP(Number(userDb.currentXp))
             .setRequiredXP(Number(userDb.xpNeeded))
             .setProgressBar("#FFFFFF", "COLOR")
-            .setUsername(user.username)
+            .setUsername(strUcFirst(user.username))
             .setStatus("online")
             .setLevel(Number(userDb.level))
             .setBackground('IMAGE', background)

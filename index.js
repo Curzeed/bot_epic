@@ -9,8 +9,6 @@ const hash = require('object-hash');
 const tickets_create = require('./events/tickets_create');
 const select_heroes = require('./events/select_heroes');
 const paginationHeroes = require('./events/paginationHeroes');
-const {Player} = require("discord-music-player");
-const eventsPlayer = require('./events/eventsPlayer');
 const autocomplete = require('./events/autocomplete');
 // You can define the Player as *client.player* to easly access it.
 
@@ -29,11 +27,6 @@ intents:
 		'MESSAGE', 'CHANNEL', 'REACTION'
 	],
 });
-const player = new Player(client, {
-	leaveOnEmpty: true, // This options are optional.
-	quality : 'high',
-});
-client.player = player;
 // Création d'une collection à l'instance du client
 client.commands = new Collection();
 // cron task
@@ -89,13 +82,15 @@ client.on('messageCreate', async (message) => {
 		ranking(client,message)
 		if(message.content.toLowerCase().endsWith('quoi') || message.content.toLowerCase().endsWith('quoi ?')){
 			const ayy = client.emojis.cache.find(emoji => emoji.name === "EmoteAWaed");
-			message.reply(`Feur ! ${ayy}`);
+			message.reply({content : `Feur ! ${ayy}`,allowedMentions: { repliedUser: false }});
 		}
 		if(message.content.toLocaleLowerCase().endsWith("zia")){
 			message.reply('Oui ?');
 		}
 		if(message.content.toLocaleLowerCase().endsWith("senaze")){
 			message.reply("Senaze");
+		}if(message.content.toLocaleLowerCase().endsWith("stickers")){
+			message.reply({stickers : ['980607299636822027']});
 		}
 	}else{
 		return
@@ -180,7 +175,30 @@ client.on('messageReactionRemove', async (reaction, user) => {
 		})
 	})	
 })
-eventsPlayer(client)
+client.on('guildMemberUpdate', async (oldMember, newMember) => {
+	const oldRoles = oldMember.roles.cache;
+	const newRoles = newMember.roles.cache;
+	const addedRoles = newRoles.filter(role => !oldRoles.has(role.id));
+	const ids = {'857724947757662239' : 1, 
+	'857726272242581546' : 2, 
+	'895551091574452304' : 3
+	};
+	if(addedRoles.size > 0){
+		const roleId = addedRoles.at(0).id;
+		if(ids.hasOwnProperty(roleId)){
+			await dbFunc.addMember(ids[addedRoles.at(0).id], oldMember.user.username)
+		}
+		console.log('Roles ajoutés sur '+ oldMember.user.username + ': '+ addedRoles.map(role => role.name).join(', ') )
+	}
+	const removedRoles = oldRoles.filter(role => !newRoles.has(role.id))
+	if(removedRoles.size > 0){
+		const roleId = removedRoles.at(0).id;
+		if(ids.hasOwnProperty(roleId)){
+			await dbFunc.removeMember(ids[removedRoles.at(0).id], oldMember.user.username)
+		}
+		console.log('Roles retirés sur '+ oldMember.user.username + ': '+ removedRoles.map(role => role.name).join(', '))
+	}
+})
 client.login(token);
 
 client.once('ready',() => {

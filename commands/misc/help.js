@@ -22,6 +22,7 @@ module.exports = {
         .addField('rank ?user? ', "Montre une carte qui montre le rang du joueur en experience chat")
         .addField('levels ', "Affiche le classement des membres en fonction de leur experience")
         .addField('ladder <guilde>', "Affiche un classement des membres d'une guilde par rapport à leur points.\n")
+        .addField('')
         .addField('\u200b', '\u200b',true)
         .addField('__**Guides**__', '\u200b',true)
         .addField('\u200b', '\u200b',true)

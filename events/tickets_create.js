@@ -4,6 +4,7 @@ module.exports = async function (client,interaction) {
     await interaction.deferReply({ephemeral: true});
     const category = interaction.guild.channels.cache.find(c => c.name == "🔖 Ticket 🔖" && c.type == "GUILD_CATEGORY");
     if (!category) return interaction.followUp({content: "La catégorie des tickets n'existe pas !", ephemeral: true});
+    const roleMod = "858044765715169348";
     const channel = await interaction.guild.channels.create(`ticket-${interaction.user.username}`, {
         type: 'GUILD_TEXT',
         parent: category,
@@ -15,6 +16,10 @@ module.exports = async function (client,interaction) {
             {
                 id: interaction.user.id,
                 allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'],
+            },
+            {
+                id: roleMod,
+                allow: ['VIEW_CHANNEL','SEND_MESSAGES']
             },
         ],
     });

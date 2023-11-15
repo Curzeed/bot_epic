@@ -1,0 +1,11 @@
+{
+    "token":"OTAxNDk5MDY2NDU2ODkxNDUz.GXx_Mz.Ru4-JSm63WO-nBi5VgYleBQ2dRiBfQatghoP9U",
+    "guildId": "765197397860024350",
+    "clientId": "901499066456891453",
+    "host" : "mysql-dlwepic.alwaysdata.net",
+    "port" : "3306",
+    "user" : "dlwepic",
+    "password" : "123456789dlw*",
+    "database" : "dlwepic_db",
+    "general_channel" : "765197397860024352"
+}

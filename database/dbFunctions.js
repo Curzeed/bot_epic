@@ -51,7 +51,7 @@ module.exports = {
         })
     },
     getAllMembersFromGuild : function(guild_id, callback){
-        pool.query(`SELECT * FROM member WHERE guild_id =${guild_id} ORDER BY score DESC`, (err,res) => {
+        pool.query(`SELECT * FROM member WHERE guild_id =${guild_id} ORDER BY score DESC LIMIT 25`, (err,res) => {
             if (err) throw err;
             res.sort(function(a,b){
                 return b.score-a.score;
@@ -68,11 +68,14 @@ module.exports = {
             callback(res)
         })
     },
-    getListMembers : function (guild_id, callback) {
+    getListMembers : function (guild_id) {
+      return new Promise((resolve, reject) => {
+
         pool.query(`SELECT * FROM member WHERE guild_id = ${guild_id}`, (err, rows) => {
             if (err) throw err;
-            callback(rows)
+            resolve(rows)
         })
+      })
     },
     /**
      * To insert or retrieve the user who wrote a message
@@ -95,7 +98,6 @@ module.exports = {
                           if(err){
                             console.error("Error on select during GetUserDb : \n" + err)
                           }
-                          console.log(row)
                           return row
                         })  
                 }

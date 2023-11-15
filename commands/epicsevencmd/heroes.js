@@ -8,16 +8,12 @@ module.exports = {
         .setName('heroes')
         .setDescription('Affiche une liste d\'héros'),
     async execute (interaction,client) {
-        // Récupère la liste des héros depuis la base de données
         const max_heroes = await MAX_HEROES();
         var index = 0;
         const heroes = await dbFunctions.getHeroes(0);
-        // Crée le tableau de choix pour le menu déroulant
         const choices = heroes.map(hero => {
             return { label: hero.name,value: hero.name + '_' + index };
         });
-        //await interaction.deferReply();
-        // Crée le message d'embed 
         const currentPage = new MessageEmbed()
             .setColor('#0099ff')
             .setTitle('Liste des héros')
@@ -25,8 +21,6 @@ module.exports = {
             .setFooter(`Page 1/${Math.ceil(max_heroes / 25)}`)
             .setTimestamp()
             ;
-
-        // Crée les boutons de pagination
         const selectMenuRow = new MessageActionRow()
             .addComponents(
                 new MessageSelectMenu()
@@ -50,7 +44,6 @@ module.exports = {
             ],
         }       
         );
-        // Envoie le message avec le menu déroulant et les boutons de pagination
         await interaction.reply({embeds : [currentPage],components: [selectMenuRow,paginationRow] });
         }
     
