@@ -8,6 +8,7 @@ module.exports = {
     .addStringOption(option => option.setName('user').setDescription('te').setAutocomplete(true)),
  
     async execute (interaction) {
+        await interaction.deferReply();
         let user = interaction.options.getString('user');
         const APIURL = `https://epic7.gg.onstove.com/gameApi/getUserInfo?nick_no=${user}&world_code=world_eu&lang=en`;
         const heroesListApi = "https://static.smilegatemegaport.com/gameRecord/epic7/epic7_hero.json?_=1698936107249";
@@ -35,6 +36,6 @@ module.exports = {
             let heroName = listHeroesFr.filter(heroDb => heroDb.code.includes(hero.hero_code));
             text += `**${heroName[0].name}** Winrate : ${hero.win_rate}% - Nombre de matchs (W/L) : (${hero.win_score}/${hero.lose_score})\n`
         })
-        return await interaction.reply(text);
+        return await interaction.editReply(text);
     }
 }
