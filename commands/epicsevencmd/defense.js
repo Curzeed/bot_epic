@@ -1,11 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const dbFunctions = require('../../database/dbFunctions'); 
-const { createCanvas, loadImage, Canvas, Image } = require('@napi-rs/canvas');
-const { MessageAttachment, MessageEmbed, MessageActionRow  } = require('discord.js');
-const fs = require('fs');
-const { readFile } = require('fs/promises');
-const { request } = require('undici');
-const embeds = []
+const nodeHtmlToImage = require('node-html-to-image')
 module.exports = {
  
     data : new SlashCommandBuilder()
@@ -21,8 +16,7 @@ module.exports = {
         let char_3 = interaction.options.getString('char_3');
         let tabChars = [char_1, char_2, char_3]
         let tabCharsDef = []
-
-        const embed = new MessageEmbed();
+        await interaction.deferReply();    
         const urlDef = "https://krivpfvxi0.execute-api.us-west-2.amazonaws.com/dev/getDef"
         for (let element of tabChars) {
             let elemFromDb = await dbFunctions.getHeroDbFromName(element)
@@ -46,26 +40,109 @@ module.exports = {
         arr.sort((a, b) => b.stats.w - a.stats.w);
         
         const top15 = arr.slice(0,6)
-        for(let i = 0; i < top15.length; i++){
-            let ids = arr[i].ids.split(",")
-            var heroes = []
-            for(let j = 0; j < ids.length; j++){
-                const hero = await dbFunctions.getHeroDbFromCode(ids[j])
-                heroes.push(hero)
-            }
-            const calcPercentage = ((top15[i].stats.w / (top15[i].stats.w + top15[i].stats.l)) * 100).toFixed(2);
-            embed.setDescription('\u200B')
-            embed.setTitle('Différentes offenses pour contrer  ' + '**'+ char_1 + '**'+', ' +'** '+ char_2 + '**'+ ' et ' + '**'+char_3+ '**')
-            embed.setColor('#0099ff')
-            embed.addFields(
-                {name : i + 1 + '. ' +heroes[0].name, value : '\u200B', inline : true},
-                {name : heroes[1].name, value : '\u200B', inline : true},
-                {name : heroes[2].name, value : String(calcPercentage) +'%' + ' ('+top15[i].stats.w+"W/"+top15[i].stats.l+"L)", inline : true},
-            )
-            embed.addFields(
-                {name : '\u200B', value : '\u200B', inline : false},
-            )
-        }
-        await interaction.reply({embeds : [embed]});
+        const images = await nodeHtmlToImage({
+            html: await renderPage(top15),
+            quality: 100,
+            type: 'jpeg',
+            puppeteerArgs: {
+            args: ['--no-sandbox'],
+            },
+            encoding: 'buffer',
+        })
+        await interaction.followUp({ files: [images] });
     }
+}
+async function generateCardHtml(top15) {
+    let cardsLeft = '';
+    let cardsRight = '';
+
+    for (let i = 0; i < top15.length; i++) {
+        let ids = top15[i].ids.split(",");
+        let heroes = [];
+
+        for (let j = 0; j < ids.length; j++) {
+            const hero = await dbFunctions.getHeroDbFromCode(ids[j]);
+            heroes.push(hero);
+        }
+
+        const calcPercentage = ((top15[i].stats.w / (top15[i].stats.w + top15[i].stats.l)) * 100).toFixed(2);
+
+        let cardHtml = `
+            <div class="card">
+                <div class="img"><img src="${heroes[0].image}" /></div>
+                <div class="img"><img src="${heroes[1].image}" /></div>
+                <div class="img"><img src="${heroes[2].image}" /></div>
+                <div class="age">${calcPercentage}% (${top15[i].stats.w}W/${top15[i].stats.l}L)</div>
+            </div>
+        `;
+
+        if (i < 3) {
+            cardsLeft += cardHtml;
+        } else {
+            cardsRight += cardHtml;
+        }
+    }
+
+    return { cardsLeft, cardsRight };
+}
+async function renderPage(top15) {
+    const { cardsLeft, cardsRight } = await generateCardHtml(top15);
+    const pageHtml = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .container{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-image: url(https://cdn.discordapp.com/attachments/1050435795481268345/1057025878326001704/IMG_20221226_210314.jpg);
+                background-repeat: round;
+                width: 700px;
+            }
+            .card{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border: 1px solid black;
+                margin: 3px;
+                border-radius: 10px;
+                background-color: hsla(0, 0%, 0%, 0.35);
+            }
+            .img > img{
+                border-radius: 50%;
+                border: 1px solid white;
+                margin: 3px;
+                width: 80px;
+                height: 50px;
+            }
+            .container-left + .container-right{
+                margin: 10px;
+            }
+            .age{
+                color: white;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            body{
+                width: fit-content;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="container-left">
+                ${cardsLeft}
+            </div>
+            <div class="container-right">
+                ${cardsRight}
+            </div>
+        </div>
+    </body>
+    </html>
+`;
+
+    // Vous pouvez maintenant utiliser 'pageHtml' pour afficher le contenu sur votre page ou le manipuler comme vous le souhaitez.
+    return pageHtml;
 }
