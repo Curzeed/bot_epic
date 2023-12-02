@@ -2,7 +2,28 @@ const db = require('./getConnection');
 const pool = db.getPool();
 const {MessageEmbed} = require('discord.js');
 module.exports = {
-
+    sqlCorrection : async function (){
+      return new Promise((resolve, reject) => {
+        pool.query(`SELECT DISTINCT idUser FROM users GROUP BY UPPER(username);`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+      })
+    },
+    sqlUpdate: async function (idUser){
+      return new Promise((resolve, reject) => {
+        pool.query(`UPDATE userstmp set to_delete = 0 WHERE idUser = ${idUser}`, (err, rows) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+  },
     getUsers : async function (name, callback){
         await pool.query(`SELECT * FROM member AS m WHERE m.name = "${name}"`,(err,res) => {
             if (err) throw err;

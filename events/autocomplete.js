@@ -1,7 +1,7 @@
 const dbFunctions = require('../database/dbFunctions')
 module.exports = 
     async function (client,interaction) {
-        if(interaction.commandName === 'defense'){
+        if(interaction.commandName === 'defense' || interaction.commandName === "canvas"){
         const heroes = await dbFunctions.getAllHeroesFromDb();
         const focusedValue = interaction.options.getFocused();
         if(focusedValue.length < 3) {
