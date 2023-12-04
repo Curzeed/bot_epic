@@ -1,13 +1,13 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const {MessageEmbed} = require('discord.js');
 module.exports = {
- 
-    data : new SlashCommandBuilder()
-    .setName('infos')
-    .setDescription('infos')
-    .addStringOption(option => option.setName('user').setDescription('te').setAutocomplete(true)),
- 
-    async execute (interaction) {
+
+    data: new SlashCommandBuilder()
+        .setName('infos')
+        .setDescription('infos')
+        .addStringOption(option => option.setName('user').setDescription('te').setAutocomplete(true)),
+
+    async execute(interaction) {
         await interaction.deferReply();
         let user = interaction.options.getString('user');
         const APIURL = `https://epic7.gg.onstove.com/gameApi/getUserInfo?nick_no=${user}&world_code=world_eu&lang=en`;
@@ -16,18 +16,18 @@ module.exports = {
         // changer la saison rta quand ça change
         const statSeasonAPI = `https://epic7.gg.onstove.com/gameApi/getUserInfoSeason?nick_no=${user}&world_code=world_eu&lang=en&search_type=2&season_code=pvp_rta_ss12`
         const opt = {
-            method : "POST",
+            method: "POST",
         }
         //const respFight = await fetch(ListFightApi,opt);
         //const listFight = await respFight.json();
         //console.log(listFight.result_body.battle_list[0])
-        const respStats = await fetch(statSeasonAPI,opt);
+        const respStats = await fetch(statSeasonAPI, opt);
         const resStats = await respStats.json();
         console.log(resStats.result_body.hero_list)
         const respHeroes = await fetch(heroesListApi);
         const listHeroes = await respHeroes.json();
         const listHeroesFr = listHeroes.fr;
-        
+
         const response = await fetch(APIURL, opt)
         const result = await response.json();
         let text = `Les héros préférés de **${result.result_body.nickname}** cette saison de rta sont : \n\n`;
