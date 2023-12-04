@@ -110,11 +110,15 @@ async function renderPage(top15) {
                 border-radius: 10px;
                 background-color: hsla(0, 0%, 0%, 0.35);
             }
-            .img > img{
-                border-radius: 50%;
-                border: 1px solid white;
-                margin: 3px;
-                width: 80px;
+            .img{
+                width: 50px;
+                height: 50px;
+                border: solid white 1px;
+                border-radius: 25px;
+                margin: 2px;
+            }
+            .img> img{
+                width: 50px;
                 height: 50px;
             }
             .container-left + .container-right{
