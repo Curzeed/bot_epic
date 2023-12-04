@@ -49,7 +49,7 @@ module.exports = {
             },
             encoding: 'buffer',
         })
-        await interaction.followUp({ files: [images] });
+        await interaction.followUp({ files: [images], content : `Voici les différentes offenses pour la défense : ${char_1}, ${char_2}, ${char_3}`});
     }
 }
 async function generateCardHtml(top15) {
