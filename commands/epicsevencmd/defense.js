@@ -61,7 +61,7 @@ async function generateCardHtml(top15) {
         let heroes = [];
 
         for (let j = 0; j < ids.length; j++) {
-            const hero = await dbFunctions.getHeroDbFromCode(ids[j]);
+            const hero = `https://static.smilegatemegaport.com/event/live/epic7/guide/images/hero/${ids[j]}_s.png`
             heroes.push(hero);
         }
 
@@ -69,9 +69,9 @@ async function generateCardHtml(top15) {
 
         let cardHtml = `
             <div class="card">
-                <div class="img"><img src="${heroes[0].image}" /></div>
-                <div class="img"><img src="${heroes[1].image}" /></div>
-                <div class="img"><img src="${heroes[2].image}" /></div>
+                <div class="img"><img src="${heroes[0]}" /></div>
+                <div class="img"><img src="${heroes[1]}" /></div>
+                <div class="img"><img src="${heroes[2]}" /></div>
                 <div class="age">${calcPercentage}% (${top15[i].stats.w}W/${top15[i].stats.l}L)</div>
             </div>
         `;
