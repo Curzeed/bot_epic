@@ -2,28 +2,6 @@ const db = require('./getConnection');
 const pool = db.getPool();
 const {MessageEmbed} = require('discord.js');
 module.exports = {
-    sqlCorrection: async function () {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT DISTINCT idUser FROM users GROUP BY UPPER(username);`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        })
-    },
-    sqlUpdate: async function (idUser) {
-        return new Promise((resolve, reject) => {
-            pool.query(`UPDATE userstmp set to_delete = 0 WHERE idUser = ${idUser}`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
-    },
     getUsers: async function (name, callback) {
         await pool.query(`SELECT * FROM member AS m WHERE m.name = "${name}"`, (err, res) => {
             if (err) throw err;
@@ -58,18 +36,18 @@ module.exports = {
         return interaction.reply({embeds: [embed]});
     },
     addMember: async function (guild_id, name) {
-        pool.query(`INSERT INTO member (guild_id, name, score) VALUES(${guild_id},"${name}", 0)`, (err, res) => {
+        pool.query(`INSERT INTO member (guild_id, name, score) VALUES(${guild_id},"${name}", 0)`, (err) => {
             if (err) throw err;
 
         })
     },
     removeMember: async function (guild_id, name) {
-        pool.query(`DELETE FROM member WHERE guild_id= ${guild_id} AND name = "${name}"`, (err, res) => {
+        pool.query(`DELETE FROM member WHERE guild_id= ${guild_id} AND name = "${name}"`, (err) => {
             if (err) throw err;
         })
     },
     modifyScore: async function (guild_id, name, points, callback) {
-        pool.query(`UPDATE member SET score = score + ${points} WHERE name = "${name}" AND guild_id = ${guild_id}`, (err, res) => {
+        pool.query(`UPDATE member SET score = score + ${points} WHERE name = "${name}" AND guild_id = ${guild_id}`, (err) => {
             if (err) throw err;
         })
         pool.query(`SELECT * FROM member WHERE name= "${name}" AND guild_id = ${guild_id}`, (err, res) => {
@@ -86,7 +64,7 @@ module.exports = {
         })
     },
     giveWarn: function (member, number, callback) {
-        pool.query(`UPDATE member SET warn = warn ${number} WHERE name = "${member}"`, (err, res) => {
+        pool.query(`UPDATE member SET warn = warn ${number} WHERE name = "${member}"`, (err) => {
             if (err) throw err;
         })
         pool.query(`SELECT * FROM member WHERE name = "${member}"`, (err, res) => {
@@ -95,8 +73,7 @@ module.exports = {
         })
     },
     getListMembers: function (guild_id) {
-        return new Promise((resolve, reject) => {
-
+        return new Promise((resolve) => {
             pool.query(`SELECT * FROM member WHERE guild_id = ${guild_id}`, (err, rows) => {
                 if (err) throw err;
                 resolve(rows)
@@ -251,13 +228,6 @@ module.exports = {
             }
         )
     },
-    insertHeroes: async function (image, nb_stars, element, name, message_link) {
-        await pool.query(
-            `INSERT INTO hero (image,nb_stars,element, name,message_link) VALUES ('${image}', ${nb_stars}, '${element}', '${name}', '${message_link}')`, (err) => {
-                if (err) throw err;
-            }
-        )
-    },
     insertHeroesDb: async function (image, nb_stars, element, name, code) {
         await pool.query(
             `INSERT INTO hero_db (image,nb_stars,element, name, code) VALUES ('${image}', ${nb_stars}, '${element}', "${name}", '${code}')`, (err) => {
@@ -276,34 +246,9 @@ module.exports = {
             });
         });
     },
-    updateHero: async function (param, name, value) {
-        await pool.query(
-            `UPDATE hero SET ${param} = '${value}' WHERE name='${name}'`, (err) => {
-                if (err) throw err;
-            }
-        )
-    },
-    deleteHero: async function (name) {
-        await pool.query(
-            `DELETE FROM hero WHERE name='${name}'`, (err) => {
-                if (err) throw err;
-            }
-        )
-    },
     getHeroes: async function (index) {
         return new Promise((resolve, reject) => {
             pool.query(`SELECT * FROM hero ORDER BY name ASC LIMIT 25 OFFSET ${index} `, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
-    },
-    getAllHeroes: async function () {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero ORDER BY name ASC`, (err, rows) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -356,15 +301,4 @@ module.exports = {
             });
         });
     },
-    getHeroDbFromCode: async function (code) {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero_db WHERE code = "${code}"`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows[0]);
-                }
-            });
-        });
-    }
 }
