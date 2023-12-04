@@ -105,7 +105,6 @@ async function renderPage(top15) {
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                border: 1px solid black;
                 margin: 3px;
                 border-radius: 10px;
                 background-color: hsla(0, 0%, 0%, 0.35);
