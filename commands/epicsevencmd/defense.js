@@ -33,7 +33,7 @@ module.exports = {
         const data = await response.json()
         let arr = [];
 
-        if (data.data == null) return interaction.reply({content: "Aucune données trouvées"})
+        if (data.data == null) return interaction.followUp({content: "Aucune données trouvées"})
         for (const [key, value] of Object.entries(data.data)) {
             arr.push({ids: key, stats: value});
         }
