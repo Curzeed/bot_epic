@@ -10,6 +10,9 @@ const tickets_create = require('./events/tickets_create');
 const select_heroes = require('./events/select_heroes');
 const paginationHeroes = require('./events/paginationHeroes');
 const autocomplete = require('./events/autocomplete');
+
+const regex_twitter = /http[s]?:\/\/twitter\.com\/([A-Za-z0-9_]+)\/status\/([0-9]+)/g;
+const regex_x = /http[s]?:\/\/x\.com\/([A-Za-z0-9_]+)/g;
 // You can define the Player as *client.player* to easly access it.
 
 // Create a new client instance
@@ -80,6 +83,19 @@ client.on('messageCreate', async (message) => {
     if (!message.author.bot) {
         console.log(message.channel.name + " \n " + "Auteur : " + message.author.username + "\n" + message.content)
         ranking(client, message)
+        let prefixe = "https://";
+        if(message.content.match(regex_twitter)){
+            let index = message.content.indexOf(prefixe) + prefixe.length;
+            let editedMessage = message.content.slice(0, index) + "fx" + message.content.slice(index);
+            await message.delete();
+            message.channel.send({content: editedMessage})
+        }
+        if(message.content.match(regex_x)){
+            let index = message.content.indexOf(prefixe) + prefixe.length;
+            let editedMessage = message.content.slice(0, index) + "fixup" + message.content.slice(index);
+            await message.delete();
+            message.channel.send({content: editedMessage})
+        }
         if (message.content.toLowerCase().endsWith('quoi') || message.content.toLowerCase().endsWith('quoi ?')) {
             const ayy = client.emojis.cache.find(emoji => emoji.name === "EmoteAWaed");
             message.reply({content: `Feur ! ${ayy}`, allowedMentions: {repliedUser: false}});
