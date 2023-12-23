@@ -30,7 +30,7 @@ module.exports = {
             users.split('>').filter(user => user !== '').forEach(async (use) => {
                 let userId = use.trim().replace('<@', '')
                 let user = await client.users.fetch(userId)
-                user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublie pas de la/les finir !", embeds: [embedDm] })
+                user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublies pas de la/les finir !", embeds: [embedDm] })
             })
             await interaction.reply({
                 content: `Le message a bien été envoyé aux gueux !  : ${channel}`,
