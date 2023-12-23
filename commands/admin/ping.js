@@ -1,5 +1,5 @@
-const {SlashCommandBuilder} = require('@discordjs/builders');
-const {MessageEmbed} = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageEmbed } = require('discord.js');
 const dbFunctions = require('../../database/dbFunctions')
 
 module.exports = {
@@ -9,24 +9,33 @@ module.exports = {
         .addChannelOption(opt => opt.setName('channel').setDescription('channel').setRequired(true))
         .addStringOption(opt => opt.setName('users').setDescription('users').setRequired(true))
         .addStringOption(opt => opt.setName('text').setDescription('Message envoyé à la suite des pings').setRequired(false)),
-    async execute(interaction) {
+    async execute(interaction, client) {
         if (dbFunctions.isAdmin(interaction.member)) {
             const users = interaction.options.getString('users')
             const channel = interaction.options.getChannel('channel')
             const text = interaction.options.getString('text')
-            let embed = new MessageEmbed()
+//            let embed = new MessageEmbed()
+//                .setTimestamp()
+//                .setColor('RED')
+//                .setAuthor(interaction.user.globalName, interaction.user.displayAvatarURL({ format: 'png' }))
+//                .setTitle('Rappel GW ')
+//                .setDescription(text ? text : `Bonsoir, n'oubliez pas de faire vos gw ainsi que vos attaques restantes ! \n Bon courage à tous !`)
+//                .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
+
+            let embedDm = new MessageEmbed()
                 .setTimestamp()
                 .setColor('RED')
-                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({format: 'png'}))
+                .setAuthor(interaction.user.globalName, interaction.user.displayAvatarURL({ format: 'png' }))
                 .setTitle('Rappel GW ')
-                .setDescription(text ? text : `Bonsoir, n'oubliez pas de faire vos gw ainsi que vos attaques restantes ! \n Bon courage à tous !`)
+                .setDescription(text ? text : `Bonsoir, n'oublies pas de faire tes gw ainsi que tes attaques restantes ! \n Bon courage à toi !`)
                 .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
-            channel.send({
-                content: `||${users}||`,
-                embeds: [embed]
+            users.split('>').filter(user => user !== '').forEach(async (use) => {
+                let userId = use.trim().replace('<@', '')
+                let user = await client.users.fetch(userId)
+                user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublie pas de la/les finir !", embeds: [embedDm] })
             })
             await interaction.reply({
-                content: `Le message a bien été envoyé dans le channel : ${channel}`,
+                content: `Le message a bien été envoyé aux gueux !  : ${channel}`,
                 ephemeral: true
             })
         } else {
