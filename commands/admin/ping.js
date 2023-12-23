@@ -6,13 +6,11 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Replieses with Pong ! ')
-        .addChannelOption(opt => opt.setName('channel').setDescription('channel').setRequired(true))
         .addStringOption(opt => opt.setName('users').setDescription('users').setRequired(true))
         .addStringOption(opt => opt.setName('text').setDescription('Message envoyé à la suite des pings').setRequired(false)),
     async execute(interaction, client) {
         if (dbFunctions.isAdmin(interaction.member)) {
             const users = interaction.options.getString('users')
-            const channel = interaction.options.getChannel('channel')
             const text = interaction.options.getString('text')
 //            let embed = new MessageEmbed()
 //                .setTimestamp()
