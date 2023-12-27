@@ -10,6 +10,7 @@ module.exports = {
         .addStringOption(opt => opt.setName('text').setDescription('Message envoyé à la suite des pings').setRequired(false)),
     async execute(interaction, client) {
         if (dbFunctions.isAdmin(interaction.member)) {
+            await interaction.deferReply();
             const users = interaction.options.getString('users')
             const text = interaction.options.getString('text')
 //            let embed = new MessageEmbed()
@@ -30,9 +31,9 @@ module.exports = {
             users.split('>').filter(user => user !== '').forEach(async (use) => {
                 let userId = use.trim().replace('<@', '')
                 let user = await client.users.fetch(userId)
-                user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublies pas de la/les finir !", embeds: [embedDm] })
+                await user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublies pas de la/les finir !", embeds: [embedDm] })
             })
-            await interaction.reply({
+            await interaction.editReply({
                 content: `Le message a bien été envoyé aux gueux !  : ${users}`,
                 ephemeral: true
             })
