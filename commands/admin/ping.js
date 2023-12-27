@@ -24,7 +24,6 @@ module.exports = {
             let embedDm = new MessageEmbed()
                 .setTimestamp()
                 .setColor('RED')
-                .setAuthor(interaction.user.globalName, interaction.user.displayAvatarURL({ format: 'png' }))
                 .setTitle('Rappel GW ')
                 .setDescription(text ? text : `Bonsoir, n'oublies pas de faire tes gw ainsi que tes attaques restantes ! \n Bon courage à toi !`)
                 .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
