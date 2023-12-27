@@ -96,16 +96,6 @@ client.on('messageCreate', async (message) => {
             await message.delete();
             message.channel.send({content: editedMessage})
         }
-        if (message.content.toLowerCase().endsWith('quoi') || message.content.toLowerCase().endsWith('quoi ?')) {
-            const ayy = client.emojis.cache.find(emoji => emoji.name === "EmoteAWaed");
-            message.reply({content: `Feur ! ${ayy}`, allowedMentions: {repliedUser: false}});
-        }
-        if (message.content.toLocaleLowerCase().endsWith("zia")) {
-            message.reply('Oui ?');
-        }
-        if (message.content.toLocaleLowerCase().endsWith("senaze")) {
-            message.reply("Senaze");
-        }
         if (message.content.toLocaleLowerCase().endsWith("stickers")) {
             message.reply({stickers: ['980607299636822027']});
         }
