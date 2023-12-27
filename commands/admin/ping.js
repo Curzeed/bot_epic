@@ -33,7 +33,7 @@ module.exports = {
                 user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublies pas de la/les finir !", embeds: [embedDm] })
             })
             await interaction.reply({
-                content: `Le message a bien été envoyé aux gueux !  : ${channel}`,
+                content: `Le message a bien été envoyé aux gueux !  : ${users}`,
                 ephemeral: true
             })
         } else {
