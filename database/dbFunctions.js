@@ -36,7 +36,7 @@ module.exports = {
         return interaction.reply({embeds: [embed]});
     },
     addMember: async function (guild_id, name) {
-        pool.query(`INSERT INTO member (guild_id, name, score) VALUES(${guild_id},"${name}", 0)`, (err) => {
+        pool.query(`INSERT INTO member (guild_id, name, score,warn) VALUES(${guild_id},"${name}", 0,0)`, (err) => {
             if (err) throw err;
 
         })
