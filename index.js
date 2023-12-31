@@ -1,5 +1,5 @@
 // Require the necessary discord.js classes
-const {Client, Intents, Collection, MessageEmbed, MessageReaction} = require('discord.js');
+const {Client, Intents, Collection, MessageEmbed, MessageReaction, Permissions} = require('discord.js');
 const {token} = require('./config.json');
 const fs = require('fs');
 const ranking = require('./events/ranking');
@@ -10,7 +10,6 @@ const tickets_create = require('./events/tickets_create');
 const select_heroes = require('./events/select_heroes');
 const paginationHeroes = require('./events/paginationHeroes');
 const autocomplete = require('./events/autocomplete');
-
 const regex_twitter = /http[s]?:\/\/twitter\.com\/([A-Za-z0-9_]+)\/status\/([0-9]+)/g;
 const regex_x = /http[s]?:\/\/x\.com\/([A-Za-z0-9_]+)/g;
 // You can define the Player as *client.player* to easly access it.
@@ -207,6 +206,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
         const roleId = addedRoles.at(0).id;
         if (ids.hasOwnProperty(roleId)) {
             await dbFunc.addMember(ids[addedRoles.at(0).id], oldMember.user.username)
+            await channelTrigger(oldMember,newMember,ids[addedRoles.at(0).id]);
         }
         console.log('Roles ajoutés sur ' + oldMember.user.username + ': ' + addedRoles.map(role => role.name).join(', '))
     }
@@ -224,3 +224,59 @@ client.login(token);
 client.once('ready', () => {
     client.user.setActivity('Les gens', {type: 'WATCHING'});
 })
+async function channelTrigger(oldMember,Newmember,id){
+    let guildName = (id) => {
+        switch(id){
+            case 1 : return "dark";
+            case 2 : return "light";
+            case 3 : return "wilda";
+        }
+    };
+    const categoryParent = await findCategory(Newmember.guild,guildName(id));
+    let ifExistChannel = await checkIfChannelExist(oldMember)
+    if(ifExistChannel !== false){
+        await editChannelStuff(ifExistChannel,categoryParent);
+    }else{
+        await createChannelStuff(Newmember,categoryParent);
+    }
+}
+async function createChannelStuff(member,categoryParent){
+    const channel = await member.guild.channels.create(member.user.username, {
+    type: 'GUILD_TEXT',
+    parent: categoryParent,
+    permissionOverwrites: [
+            {
+                id: member.guild.roles.everyone,
+                deny: [Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES],
+            },
+            {
+                id: member.id,
+                allow: [Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_CHANNELS],
+            },
+            {
+                id: "858044765715169348",
+                allow: [Permissions.ALL]
+            },
+        ],
+    });
+    channel.send({content : "Ton channel personnalisé a été créé !" + `<@${member.id}>`})
+}
+async function checkIfChannelExist(member){
+    console.log(member)
+    let chan = await member.guild.channels.cache.find(channel => channel.name === member.user.username)
+    return chan === undefined ? false : chan 
+}
+
+async function editChannelStuff(channelExist,categoryParent){
+    channelExist.setParent(categoryParent);
+    channelExist.send({content : "Ton channel personnalisé a été déplacé dans ta nouvelle guilde !"})
+}
+async function findCategory(guild,guildName){
+    let categoryId;
+    switch(guildName){
+        case "dark" :  categoryId = "832683310869250048";break;
+        case "light" : categoryId = "901526849459470397";break;
+        case "wilda" : categoryId = "901527344089559060";break;
+    }
+    return guild.channels.cache.find(cat => cat.id === categoryId);
+}
