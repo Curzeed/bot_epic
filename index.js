@@ -23,6 +23,7 @@ const client = new Client({
             Intents.FLAGS.GUILD_MEMBERS,
             Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
             Intents.FLAGS.GUILD_VOICE_STATES,
+            Intents.FLAGS.DIRECT_MESSAGES
         ],
     partials:
         [
@@ -79,8 +80,28 @@ client.on('interactionCreate', async interaction => {
     }
 });
 client.on('messageCreate', async (message) => {
+    if(!message.guild){
+        channelSend = client.channels.cache.get("857672927083757619");
+        let allMessages = [];
+        let lastId;
+        while(true){
+            const options = {limit : 1};
+            if(lastId){
+                options.before = lastId
+            }
+            const messages = await message.channel.messages.fetch(options);
+            allMessages = allMessages.concat(Array.from(messages.values()))
+            lastId = messages.last().id;
+            if (messages.size != 100) {
+                break;
+            }
+        }
+        const userMessages = allMessages.filter(message => !message.author.bot);
+        console.log(userMessages[0].author)
+        return await channelSend.send(`${userMessages[0].author.username} m'a envoyé :  ${userMessages[0]}`)
+    }
     if (!message.author.bot) {
-        console.log(message.channel.name + " \n " + "Auteur : " + message.author.username + "\n" + message.content)
+        console.log(message.channel.name + " \n " + "Auteur : " + message.author.globalName + "\n" + message.content)
         ranking(client, message)
         let prefixe = "https://";
         if(message.content.match(regex_twitter)){
@@ -262,7 +283,6 @@ async function createChannelStuff(member,categoryParent){
     channel.send({content : "Ton channel personnalisé a été créé !" + `<@${member.id}>`})
 }
 async function checkIfChannelExist(member){
-    console.log(member)
     let chan = await member.guild.channels.cache.find(channel => channel.name === member.user.username)
     return chan === undefined ? false : chan 
 }
