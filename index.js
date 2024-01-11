@@ -92,7 +92,7 @@ client.on('messageCreate', async (message) => {
             const messages = await message.channel.messages.fetch(options);
             allMessages = allMessages.concat(Array.from(messages.values()))
             lastId = messages.last().id;
-            if (messages.size != 100) {
+            if (messages.size != 1) {
                 break;
             }
         }
