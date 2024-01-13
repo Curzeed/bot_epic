@@ -13,7 +13,7 @@ module.exports = {
         .addMentionableOption(opt => opt.setName('membre').setDescription('Nom du membre').setRequired(true))
         .addStringOption(opt => opt.setName('nombre').setRequired(true).setDescription('Nombre de warns')),
 
-    async execute(interaction) {
+    async execute(interaction,client) {
         const resUser = interaction.options.getMentionable('membre').user.username.toLowerCase();
         const number = interaction.options.getString('nombre');
 
@@ -21,9 +21,10 @@ module.exports = {
             if (memberUser) {
                 if (dbFunctions.isAdmin(interaction.member)) {
                     try {
-                        dbFunctions.giveWarn(resUser, number, (member) => {
+                        dbFunctions.giveWarn(resUser, number, async (member) => {
                             if (member[0].score >= 2) {
-                                return interaction.reply(`${strUcFirst(member[0].name)} possède désormais ${member[0].warn++} warns ! \nPour rappel au troisième warn il sera banni de la guilde`)
+                                let user = await client.users.find(user => user.username === member[0].name)
+                                return interaction.reply(`<@${user.id}> possède désormais ${member[0].warn++} warns ! \nPour rappel au troisième warn il sera banni de la guilde`)
                             }
                             return interaction.reply(`${strUcFirst(member[0].name)} possède désormais ${member[0].warn++} warns !`)
                         })
