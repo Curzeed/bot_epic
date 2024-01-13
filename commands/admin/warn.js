@@ -26,7 +26,7 @@ module.exports = {
                                 let user = await client.users.find(user => user.username === member[0].name)
                                 return interaction.reply(`<@${user.id}> possède désormais ${member[0].warn++} warns ! \nPour rappel au troisième warn il sera banni de la guilde`)
                             }
-                            return interaction.reply(`${strUcFirst(member[0].name)} possède désormais ${member[0].warn++} warns !`)
+                            return interaction.reply(`<@${user.id}> possède désormais ${member[0].warn++} warns !`)
                         })
                     } catch (error) {
                         console.error(error.stack)
