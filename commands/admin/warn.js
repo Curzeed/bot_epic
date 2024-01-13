@@ -22,7 +22,7 @@ module.exports = {
                 if (dbFunctions.isAdmin(interaction.member)) {
                     try {
                         dbFunctions.giveWarn(resUser, number, async (member) => {
-                            let user = await client.users.find(user => user.username === member[0].name)
+                            let user = await client.users.cache.find(user => user.username === member[0].name)
                             if (member[0].score >= 2) {
                                 return interaction.reply(`<@${user.id}> possède désormais ${member[0].warn++} warns ! \nPour rappel au troisième warn il sera banni de la guilde`)
                             }
