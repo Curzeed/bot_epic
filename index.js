@@ -80,25 +80,18 @@ client.on('interactionCreate', async interaction => {
     }
 });
 client.on('messageCreate', async (message) => {
-    if(!message.guild){
+    if(message.guildId == null){
         channelSend = client.channels.cache.get("857672927083757619");
         let allMessages = [];
-        let lastId;
         while(true){
             const options = {limit : 1};
-            if(lastId){
-                options.before = lastId
-            }
             const messages = await message.channel.messages.fetch(options);
             allMessages = allMessages.concat(Array.from(messages.values()))
-            lastId = messages.last().id;
-            if (messages.size != 1) {
-                break;
-            }
+            lastMessage = allMessages[0];
+            break;
         }
-        const userMessages = allMessages.filter(message => !message.author.bot);
-        console.log(userMessages[0].author)
-        return await channelSend.send(`${userMessages[0].author.username} m'a envoyé :  ${userMessages[0]}`)
+        console.log(lastMessage.author)
+        return await channelSend.send(`${lastMessage.author.username} m'a envoyé :  ${lastMessage.content}`)
     }
     if (!message.author.bot) {
         console.log(message.channel.name + " \n " + "Auteur : " + message.author.globalName + "\n" + message.content)
