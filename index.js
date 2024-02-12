@@ -97,8 +97,11 @@ client.on('messageCreate', async (message) => {
             }
         }
         const userMessages = allMessages.filter(message => !message.author.bot);
-        console.log(userMessages[0].author)
-        return await channelSend.send(`${userMessages[0].author.username} m'a envoyé :  ${userMessages[0]}`)
+        if(userMessages[0].attachments){
+            console.log(userMessages[0])
+            return await channelSend.send({content : `${userMessages[0].author.username} m'a envoyé :  ${userMessages[0].content}`, files : Array.from(userMessages[0].attachments.values())})
+        }
+        return await channelSend.send(`${userMessages[0].author.username} m'a envoyé :  ${userMessages[0].content}`)
     }
     if (!message.author.bot) {
         console.log(message.channel.name + " \n " + "Auteur : " + message.author.globalName + "\n" + message.content)
