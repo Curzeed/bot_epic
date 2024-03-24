@@ -84,6 +84,9 @@ client.on('messageCreate', async (message) => {
         channelSend = client.channels.cache.get("857672927083757619");
         let allMessages = [];
         let lastId;
+        if(message.author.bot){
+            return;
+        }
         while(true){
             const options = {limit : 1};
             if(lastId){
@@ -226,10 +229,13 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
         '857726272242581546': 2,
         '895551091574452304': 3
     };
+    if(oldMember.nickname !== newMember.nickname){
+        onRename(oldMember,newMember);
+    }
     if (addedRoles.size > 0) {
         const roleId = addedRoles.at(0).id;
         if (ids.hasOwnProperty(roleId)) {
-            await dbFunc.addMember(ids[addedRoles.at(0).id], oldMember.user.username)
+            //await dbFunc.addMember(ids[addedRoles.at(0).id], oldMember.user.username)
             await channelTrigger(oldMember,newMember,ids[addedRoles.at(0).id]);
         }
         console.log('Roles ajoutés sur ' + oldMember.user.username + ': ' + addedRoles.map(role => role.name).join(', '))
@@ -238,7 +244,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
     if (removedRoles.size > 0) {
         const roleId = removedRoles.at(0).id;
         if (ids.hasOwnProperty(roleId)) {
-            await dbFunc.removeMember(ids[removedRoles.at(0).id], oldMember.user.username)
+            //await dbFunc.removeMember(ids[removedRoles.at(0).id], oldMember.user.username)
         }
         console.log('Roles retirés sur ' + oldMember.user.username + ': ' + removedRoles.map(role => role.name).join(', '))
     }
@@ -265,7 +271,7 @@ async function channelTrigger(oldMember,Newmember,id){
     }
 }
 async function createChannelStuff(member,categoryParent){
-    const channel = await member.guild.channels.create(member.user.username, {
+    const channel = await member.guild.channels.create(member.nickname, {
     type: 'GUILD_TEXT',
     parent: categoryParent,
     permissionOverwrites: [
@@ -286,7 +292,11 @@ async function createChannelStuff(member,categoryParent){
     channel.send({content : "Ton channel personnalisé a été créé !" + `<@${member.id}>`})
 }
 async function checkIfChannelExist(member){
-    let chan = await member.guild.channels.cache.find(channel => channel.name === member.user.username)
+    let chan = await member.guild.channels.cache.find(channel => {
+        (channel.name === member.user.username) || 
+        (channel.name === formatChannelName(member.nickname));
+        console.log(channel.name, formatChannelName(member.nickname))
+    });
     return chan === undefined ? false : chan 
 }
 
