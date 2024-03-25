@@ -25,7 +25,7 @@ module.exports = {
 //                .setTitle('Rappel GW ')
 //                .setDescription(text ? text : `Bonsoir, n'oubliez pas de faire vos gw ainsi que vos attaques restantes ! \n Bon courage à tous !`)
 //                .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
-            if(choiceCtx === 1){
+            if(choiceCtx == 1){
                 let embedDm = new MessageEmbed()
                 .setTimestamp()
                 .setColor('RED')
