@@ -1,6 +1,16 @@
-// Require the necessary discord.js classes
-const {Client, Intents, Collection, MessageEmbed, MessageReaction, Permissions} = require('discord.js');
+const {
+    Client,
+    GatewayIntentBits,
+    Partials,
+    Collection,
+    EmbedBuilder,
+    PermissionFlagsBits,
+    ChannelType,
+    ActivityType,
+    MessageFlags,
+} = require('discord.js');
 const {token} = require('./config.json');
+const {formatChannelName, memberChannelName} = require('./utils/channelName');
 const fs = require('fs');
 const ranking = require('./events/ranking');
 const dbFunc = require('./database/dbFunctions')
@@ -8,27 +18,24 @@ const cronTask = require('./events/cronTask')
 const hash = require('object-hash');
 const tickets_create = require('./events/tickets_create');
 const select_heroes = require('./events/select_heroes');
-const paginationHeroes = require('./events/paginationHeroes');
 const autocomplete = require('./events/autocomplete');
+const {showHeroSearchModal, handleHeroSearchModal} = require('./events/heroSearchFlow');
 const regex_twitter = /http[s]?:\/\/twitter\.com\/([A-Za-z0-9_]+)\/status\/([0-9]+)/g;
 const regex_x = /http[s]?:\/\/x\.com\/([A-Za-z0-9_]+)/g;
 // You can define the Player as *client.player* to easly access it.
 
 // Create a new client instance
 const client = new Client({
-    intents:
-        [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_MESSAGES,
-            Intents.FLAGS.GUILD_MEMBERS,
-            Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-            Intents.FLAGS.GUILD_VOICE_STATES,
-            Intents.FLAGS.DIRECT_MESSAGES
-        ],
-    partials:
-        [
-            'MESSAGE', 'CHANNEL', 'REACTION'
-        ],
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.MessageContent,
+    ],
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
 // Création d'une collection à l'instance du client
 client.commands = new Collection();
@@ -43,21 +50,34 @@ for (const folder of commandFolders) {
     }
 }
 
-// When the client is ready, run this code (only once)
-client.once('ready', () => {
+client.once('clientReady', () => {
     console.log('Je suis lancé!');
+    client.user.setActivity('Les gens', {type: ActivityType.Watching});
 });
 
 client.on('interactionCreate', async interaction => {
-    if (interaction.isSelectMenu()) {
+    if (interaction.isStringSelectMenu()) {
         await select_heroes(client, interaction)
     }
     if (interaction.isAutocomplete()) {
-        await autocomplete(client, interaction)
+        try {
+            await autocomplete(client, interaction);
+        } catch (error) {
+            console.error('Autocomplete:', error);
+            if (!interaction.responded) {
+                await interaction.respond([]).catch(() => {});
+            }
+        }
+        return;
+    }
+    if (interaction.isModalSubmit() && interaction.customId === 'hero_search_modal') {
+        await handleHeroSearchModal(interaction, client);
+        return;
     }
     if (interaction.isButton()) {
-        if (interaction.customId === 'next' || interaction.customId === 'previous') {
-            await paginationHeroes(client, interaction, interaction.customId)
+        if (interaction.customId === 'hero_open_search') {
+            await showHeroSearchModal(interaction);
+            return;
         }
         if (interaction.customId === 'ticket_create') {
             tickets_create(client, interaction);
@@ -67,7 +87,7 @@ client.on('interactionCreate', async interaction => {
         }
 
     }
-    if (!interaction.isCommand()) return;
+    if (!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
 
@@ -76,7 +96,12 @@ client.on('interactionCreate', async interaction => {
         await command.execute(interaction, client);
     } catch (error) {
         console.error(error);
-        await interaction.reply({content: 'Une erreur a été détectée lors de la commande', ephemeral: true});
+        const payload = {content: 'Une erreur a été détectée lors de la commande', flags: MessageFlags.Ephemeral};
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp(payload);
+        } else {
+            await interaction.reply(payload);
+        }
     }
 });
 client.on('messageCreate', async (message) => {
@@ -136,11 +161,10 @@ client.on('guildMemberAdd', async (member) => {
     const role = member.guild.roles.cache.find(role => role.name === "En cours d'adhésion");
     const emoteOrbis = client.emojis.cache.find(emoji => emoji.name === "orbis");
     const emoteRoana = client.emojis.cache.find(emoji => emoji.name === "roa_yay");
-    const embed = new MessageEmbed()
-    embed.setThumbnail('https://cdn-longterm.mee6.xyz/plugins/welcome/images/765197397860024350/184b2cd1ff10af51ea51aa0e493410467cc1b47f74172ccf3f6b70a27a21b39f.png')
-    let text = `Hey ${member}, Bienvenue dans la communauté DLW !${emoteRoana} \n \n ${emoteOrbis}N'hésites pas à te présenter et à nous annoncer la raison de ta venue... \n \n ${emoteOrbis}Nos modos te donneront accès au serveur ensuite !`
-    embed.setDescription(text)
-    embed.setColor('DARK_BLUE');
+    const embed = new EmbedBuilder()
+        .setThumbnail('https://cdn-longterm.mee6.xyz/plugins/welcome/images/765197397860024350/184b2cd1ff10af51ea51aa0e493410467cc1b47f74172ccf3f6b70a27a21b39f.png')
+        .setDescription(`Hey ${member}, Bienvenue dans la communauté DLW !${emoteRoana} \n \n ${emoteOrbis}N'hésites pas à te présenter et à nous annoncer la raison de ta venue... \n \n ${emoteOrbis}Nos modos te donneront accès au serveur ensuite !`)
+        .setColor(0x00008b);
     member.roles.add(role);
     channel.send({embeds: [embed]})
 })
@@ -230,7 +254,7 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
         '895551091574452304': 3
     };
     if(oldMember.nickname !== newMember.nickname){
-        onRename(oldMember,newMember);
+        await onRename(oldMember, newMember);
     }
     if (addedRoles.size > 0) {
         const roleId = addedRoles.at(0).id;
@@ -251,9 +275,15 @@ client.on('guildMemberUpdate', async (oldMember, newMember) => {
 })
 client.login(token);
 
-client.once('ready', () => {
-    client.user.setActivity('Les gens', {type: 'WATCHING'});
-})
+async function onRename(oldMember, newMember) {
+    const channel = checkIfChannelExist(newMember);
+    if (channel === false) return;
+    const newName = memberChannelName(newMember);
+    if (newName && channel.name !== newName) {
+        await channel.setName(newName);
+    }
+}
+
 async function channelTrigger(oldMember,Newmember,id){
     let guildName = (id) => {
         switch(id){
@@ -263,7 +293,7 @@ async function channelTrigger(oldMember,Newmember,id){
         }
     };
     const categoryParent = await findCategory(Newmember.guild,guildName(id));
-    let ifExistChannel = await checkIfChannelExist(oldMember)
+    let ifExistChannel = checkIfChannelExist(oldMember);
     if(ifExistChannel !== false){
         await editChannelStuff(ifExistChannel,categoryParent);
     }else{
@@ -271,33 +301,37 @@ async function channelTrigger(oldMember,Newmember,id){
     }
 }
 async function createChannelStuff(member,categoryParent){
-    const channel = await member.guild.channels.create(member.nickname, {
-    type: 'GUILD_TEXT',
-    parent: categoryParent,
-    permissionOverwrites: [
+    const name = memberChannelName(member);
+    const channel = await member.guild.channels.create({
+        name: name ?? member.user.username.toLowerCase().slice(0, 100),
+        type: ChannelType.GuildText,
+        parent: categoryParent?.id,
+        permissionOverwrites: [
             {
-                id: member.guild.roles.everyone,
-                deny: [Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES],
+                id: member.guild.id,
+                deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages],
             },
             {
                 id: member.id,
-                allow: [Permissions.FLAGS.VIEW_CHANNEL,Permissions.FLAGS.SEND_MESSAGES, Permissions.FLAGS.MANAGE_CHANNELS],
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels],
             },
             {
-                id: "858044765715169348",
-                allow: [Permissions.ALL]
+                id: '858044765715169348',
+                allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels],
             },
         ],
     });
-    channel.send({content : "Ton channel personnalisé a été créé !" + `<@${member.id}>`})
+    channel.send({content: 'Ton channel personnalisé a été créé !' + `<@${member.id}>`});
 }
-async function checkIfChannelExist(member){
-    let chan = await member.guild.channels.cache.find(channel => {
-        (channel.name === member.user.username) || 
-        (channel.name === formatChannelName(member.nickname));
-        console.log(channel.name, formatChannelName(member.nickname))
-    });
-    return chan === undefined ? false : chan 
+function checkIfChannelExist(member){
+    const expected = memberChannelName(member);
+    const legacyUsername = formatChannelName(member.user.username);
+    const chan = member.guild.channels.cache.find(channel =>
+        channel.name === expected ||
+        channel.name === legacyUsername ||
+        channel.name === member.user.username.toLowerCase(),
+    );
+    return chan ?? false;
 }
 
 async function editChannelStuff(channelExist,categoryParent){

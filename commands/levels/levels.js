@@ -1,6 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const dbFunc = require('../../database/dbFunctions')
-const {MessageEmbed} = require('discord.js')
+const {EmbedBuilder} = require('discord.js');
 const firstPlace = "🥇 ";
 const secondPlace = "🥈 ";
 const thirdPlace = "🥉 ";
@@ -15,7 +15,7 @@ module.exports = {
         .setDescription('Global classement'),
 
     async execute(interaction) {
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setImage("https://wesportfr.com/wp-content/uploads/2021/03/HoF2021.jpg")
             .setTitle('Classement du discord');
         if (interaction.user.bot) return;

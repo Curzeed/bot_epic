@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const {MessageEmbed} = require("discord.js");
+const {EmbedBuilder} = require('discord.js');
 const firstPlace = "🥇 ";
 const secondPlace = "🥈 ";
 const thirdPlace = "🥉 ";
@@ -21,18 +21,19 @@ module.exports = {
         let resGuilde = dbFunctions.getGuilds(Number(interaction.options.getString('guilde')));
         try {
             dbFunctions.getAllMembersFromGuild(Number(interaction.options.getString('guilde')), (members) => {
-                const embed = new MessageEmbed()
+                const embed = new EmbedBuilder()
                     .setTitle('Classement de ' + resGuilde)
                     .setDescription('Classements des membres en fonction de leur résultats en GW');
-                for (i = 0; i < members.length; i++) {
+                for (let i = 0; i < members.length; i++) {
+                    const score = members[i].score.toString();
                     if (members[i].id === members[0].id) {
-                        embed.addField(firstPlace + strUcFirst(members[i].name), members[i].score.toString())
+                        embed.addFields({name: firstPlace + strUcFirst(members[i].name), value: score});
                     } else if (members[i].id === members[1].id) {
-                        embed.addField(secondPlace + strUcFirst(members[i].name), members[i].score.toString())
+                        embed.addFields({name: secondPlace + strUcFirst(members[i].name), value: score});
                     } else if (members[i].id === members[2].id) {
-                        embed.addField(thirdPlace + strUcFirst(members[i].name), members[i].score.toString())
+                        embed.addFields({name: thirdPlace + strUcFirst(members[i].name), value: score});
                     } else {
-                        embed.addField([i + 1] + ". " + strUcFirst(members[i].name), members[i].score.toString())
+                        embed.addFields({name: [i + 1] + '. ' + strUcFirst(members[i].name), value: score});
                     }
                 }
                 switch (resGuilde) {

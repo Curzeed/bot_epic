@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
-const {MessageActionRow, MessageButton, MessageEmbed} = require('discord.js');
+const {ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder} = require('discord.js');
 
 module.exports = {
 
@@ -8,19 +8,17 @@ module.exports = {
         .setDescription('set'),
 
     async execute(interaction) {
-        const row = new MessageActionRow()
-            .addComponents(
-                new MessageButton()
-                    .setCustomId('ticket_create')
-                    .setLabel('Créer un ticket')
-                    .setStyle('PRIMARY')
-                    .setEmoji('🎫')
-                ,
-            );
-        const embed = new MessageEmbed()
-            .setColor("#800303")
-            .setTitle("Créer un ticket")
-            .setDescription("Pour créer un ticket cliquez sur le bouton ci dessous !");
-        interaction.channel.send({embeds: [embed], components: [row]});
-    }
-}
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId('ticket_create')
+                .setLabel('Créer un ticket')
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji('🎫'),
+        );
+        const embed = new EmbedBuilder()
+            .setColor(0x800303)
+            .setTitle('Créer un ticket')
+            .setDescription('Pour créer un ticket cliquez sur le bouton ci dessous !');
+        await interaction.channel.send({embeds: [embed], components: [row]});
+    },
+};

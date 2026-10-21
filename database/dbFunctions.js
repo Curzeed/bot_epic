@@ -1,304 +1,207 @@
-const db = require('./getConnection');
-const pool = db.getPool();
-const {MessageEmbed} = require('discord.js');
+const {getDb} = require('./getConnection');
+const {EmbedBuilder} = require('discord.js');
+
+function db() {
+    return getDb();
+}
+
 module.exports = {
-    getUsers: async function (name, callback) {
-        await pool.query(`SELECT * FROM member AS m WHERE m.name = "${name}"`, (err, res) => {
-            if (err) throw err;
-            callback(res[0])
-        })
+    getUsers(name, callback) {
+        const row = db().prepare('SELECT * FROM member WHERE name = ?').get(name);
+        callback(row);
     },
-    getGuilds: function (guild_id) {
+    getGuilds(guild_id) {
         switch (guild_id) {
-            case 1 :
-                return "Dark";
-            case 2 :
-                return "Light";
-            case 3 :
-                return "Wilda";
+            case 1:
+                return 'Dark';
+            case 2:
+                return 'Light';
+            case 3:
+                return 'Wilda';
         }
     },
-    isAdmin: function (member) {
-        return member.roles.cache.some(r => r.name === 'dev' || r.name === 'Modération E7')
+    isAdmin(member) {
+        const adminUserIds = new Set(['208020978121310208']);
+        if (adminUserIds.has(member.id)) return true;
+        return member.roles.cache.some(r => r.name === 'dev' || r.name === 'Modération E7');
     },
-    reset: async function () {
-        await pool.query(`UPDATE member SET score = 0 WHERE 1 = 1 `, (err, res) => {
-            if (err) throw res;
-        })
+    reset() {
+        db().prepare('UPDATE member SET score = 0').run();
     },
-    isNotAdmin: function (interaction) {
-        const embed = new MessageEmbed()
-            .setColor("#800303")
+    isNotAdmin(interaction) {
+        const embed = new EmbedBuilder()
+            .setColor(0x800303)
             .setTitle("C'est non !")
-            .setImage("https://img.passeportsante.net/1000x526/2020-01-29/i93384-.jpeg")
+            .setImage('https://img.passeportsante.net/1000x526/2020-01-29/i93384-.jpeg')
             .setDescription("Tu n'es pas autorisé à utiliser ça")
             .setTimestamp();
         return interaction.reply({embeds: [embed]});
     },
-    addMember: async function (guild_id, name) {
-        pool.query(`INSERT INTO member (guild_id, name, score,warn) VALUES(${guild_id},"${name}", 0,0)`, (err) => {
-            if (err) throw err;
-
-        })
+    addMember(guild_id, name) {
+        db().prepare(
+            'INSERT INTO member (guild_id, name, score, warn) VALUES (?, ?, 0, 0)',
+        ).run(guild_id, name);
     },
-    removeMember: async function (guild_id, name) {
-        pool.query(`DELETE FROM member WHERE guild_id= ${guild_id} AND name = "${name}"`, (err) => {
-            if (err) throw err;
-        })
+    removeMember(guild_id, name) {
+        db().prepare('DELETE FROM member WHERE guild_id = ? AND name = ?').run(guild_id, name);
     },
-    modifyScore: async function (guild_id, name, points, callback) {
-        pool.query(`UPDATE member SET score = score + ${points} WHERE name = "${name}" AND guild_id = ${guild_id}`, (err) => {
-            if (err) throw err;
-        })
-        pool.query(`SELECT * FROM member WHERE name= "${name}" AND guild_id = ${guild_id}`, (err, res) => {
-            callback(res);
-        })
+    modifyScore(guild_id, name, points, callback) {
+        db().prepare(
+            'UPDATE member SET score = score + ? WHERE name = ? AND guild_id = ?',
+        ).run(points, name, guild_id);
+        const rows = db().prepare(
+            'SELECT * FROM member WHERE name = ? AND guild_id = ?',
+        ).all(name, guild_id);
+        callback(rows);
     },
-    getAllMembersFromGuild: function (guild_id, callback) {
-        pool.query(`SELECT * FROM member WHERE guild_id =${guild_id} ORDER BY score DESC LIMIT 25`, (err, res) => {
-            if (err) throw err;
-            res.sort(function (a, b) {
-                return b.score - a.score;
-            })
-            callback(res)
-        })
+    getAllMembersFromGuild(guild_id, callback) {
+        const rows = db().prepare(
+            'SELECT * FROM member WHERE guild_id = ? ORDER BY score DESC LIMIT 25',
+        ).all(guild_id);
+        rows.sort((a, b) => b.score - a.score);
+        callback(rows);
     },
-    giveWarn: function (member, number, callback) {
-        pool.query(`UPDATE member SET warn = warn ${number} WHERE name = "${member}"`, (err) => {
-            if (err) throw err;
-        })
-        pool.query(`SELECT * FROM member WHERE name = "${member}"`, (err, res) => {
-            if (err) throw err;
-            callback(res)
-        })
+    giveWarn(member, number, callback) {
+        db().prepare(`UPDATE member SET warn = warn ${number} WHERE name = ?`).run(member);
+        const rows = db().prepare('SELECT * FROM member WHERE name = ?').all(member);
+        callback(rows);
     },
-    getListMembers: function (guild_id) {
-        return new Promise((resolve) => {
-            pool.query(`SELECT * FROM member WHERE guild_id = ${guild_id}`, (err, rows) => {
-                if (err) throw err;
-                resolve(rows)
-            })
-        })
+    getListMembers(guild_id) {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM member WHERE guild_id = ?').all(guild_id),
+        );
     },
-    /**
-     * To insert or retrieve the user who wrote a message
-     * @param {Number} userId (interaction user id)
-     * @param {Date} messageDate (interaction timestamp message)
-     * @param {String} username (Interaction username)
-     * @param {(user) => user.} callback (user => user.id...)
-     */
-    getUserDb: async function (userId, messageDate, username, callback) {
-        // TO DO : Requete a chaque message a regler
-        pool.query(
-            `INSERT INTO users (id,lastMessage, username, level, currentXp, xpNeeded) VALUES ('${userId}',${messageDate},"${username}",1,0,100);`
-            , (err) => {
-                // SQL CONSTRAINT UNIQUE
-                if (err) {
-                    if (err.errno === 1062) {
-                        pool.query(
-                            `SELECT * FROM users WHERE id = ${userId}`,
-                            (err, row) => {
-                                if (err) {
-                                    console.error("Error on select during GetUserDb : \n" + err)
-                                }
-                                return row
-                            })
-                    }
-                }
-            })
-        pool.query(
-            `SELECT * FROM users WHERE id = ${userId}`,
-            (err, row) => {
-                if (err) {
-                    console.error("Error on select during GetUserDb : \n" + err)
-                }
-                return callback(row)
-            })
+    getUserDb(userId, messageDate, username, callback) {
+        const id = String(userId);
+        db().prepare(`
+            INSERT OR IGNORE INTO users (id, lastMessage, username, name, level, currentXp, xpNeeded)
+            VALUES (?, ?, ?, ?, 1, 0, 100)
+        `).run(id, messageDate, username, username.toLowerCase());
+        const row = db().prepare('SELECT * FROM users WHERE id = ?').all(id);
+        callback(row);
     },
-    /**
-     * Permit to give xp and update the result in db
-     * @param {*} userId (interaction user id)
-     * @param {*} xpGiven (random number generated)
-     * @param {*} messageDate (interaction timestamp message)
-     * @param {*} xpNeeded (xp for lvl up)
-     * @param {callback} callback ( user => user.id... After the update )
-     */
-    giveXp: async function (userId, xpGiven, messageDate, xpNeeded, callback) {
-        pool.query(
-            `UPDATE users SET currentXp = ${xpGiven} + currentXp, lastMessage = ${messageDate} ,xpNeeded = ${xpNeeded} WHERE id = ${userId}`, (err) => {
-                if (err) {
-                    console.log("Error on Update during GiveXp : \n" + err)
-                }
-                pool.query(
-                    `SELECT * FROM users WHERE id = ${userId}`, (err, row) => {
-                        if (err) throw err;
-                        callback(row[0])
-                    }
-                )
-            }
-        )
+    giveXp(userId, xpGiven, messageDate, xpNeeded, callback) {
+        const id = String(userId);
+        db().prepare(`
+            UPDATE users
+            SET currentXp = currentXp + ?, lastMessage = ?, xpNeeded = ?
+            WHERE id = ?
+        `).run(xpGiven, messageDate, xpNeeded, id);
+        const row = db().prepare('SELECT * FROM users WHERE id = ?').get(id);
+        callback(row);
     },
-    /**
-     * just an update for the user to level up
-     * @param {*} userId
-     * @param {*} userLevel
-     */
-    levelUp: async function (userId, userLevel) {
-        pool.query(
-            `UPDATE users SET level = ${userLevel} + 1, currentXp = 0 WHERE id = ${userId}`, (err) => {
-                if (err) {
-                    console.log("Error on Update during GiveXp : \n" + err)
-                }
-            }
-        )
+    levelUp(userId, userLevel) {
+        db().prepare(`
+            UPDATE users SET level = ? + 1, currentXp = 0 WHERE id = ?
+        `).run(userLevel, String(userId));
     },
-    /**
-     *
-     * @param {Number} userId
-     * @param {CallableFunction} callback
-     */
-    singleRank: async function (userId, callback) {
-        pool.query(
-            `SELECT * FROM users WHERE id = ${userId}`, (err, row) => {
-                if (err) {
-                    console.log("Error on Select during rank : \n" + err)
-                }
-                callback(row[0])
-            }
-        )
+    singleRank(userId, callback) {
+        const row = db().prepare('SELECT * FROM users WHERE id = ?').get(String(userId));
+        callback(row);
     },
-    /**
-     * Return all the users from the db and sort them
-     * @param callback
-     */
-    getRank: async function (callback) {
-        pool.query(
-            `SELECT * FROM users ORDER BY level DESC,currentXp DESC`
-            , (err, rows) => {
-                if (err) {
-                    console.log("Error on Select during rank : \n" + err)
-                }
-                callback(rows)
-            })
+    getRank(callback) {
+        const rows = db().prepare(
+            'SELECT * FROM users ORDER BY level DESC, currentXp DESC',
+        ).all();
+        callback(rows);
     },
-    setMessageReaction: async function (message_id, role_name, emoji) {
-        pool.query(
-            `INSERT INTO react_messages VALUES (${message_id}, "${role_name}", "${emoji}")`, (err) => {
-                if (err) throw err
-            })
+    setMessageReaction(message_id, role_name, emoji) {
+        db().prepare(
+            'INSERT INTO react_messages (id, role_name, emoji) VALUES (?, ?, ?)',
+        ).run(String(message_id), role_name, emoji);
     },
-    getMessageReaction: async function (message_id, callback) {
-        pool.query(
-            `SELECT * from react_messages WHERE id = ${message_id}`, (err, rows) => {
-                if (err) throw err
-                callback(rows)
-            }
-        )
+    getMessageReaction(message_id, callback) {
+        const rows = db().prepare(
+            'SELECT * FROM react_messages WHERE id = ?',
+        ).all(String(message_id));
+        callback(rows);
     },
-    addBirthday: async function (user_id, birthday) {
-        pool.query(`
-        UPDATE users SET birthday = '${birthday}' WHERE id = '${user_id}'
-      `, (err) => {
-            if (err) throw err;
-        })
+    addBirthday(user_id, birthday) {
+        db().prepare('UPDATE users SET birthday = ? WHERE id = ?').run(
+            birthday.toISOString?.() ?? String(birthday),
+            String(user_id),
+        );
     },
-    getBirthdays: async function () {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT birthday, id FROM users`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
+    getBirthdays() {
+        return Promise.resolve(
+            db().prepare('SELECT birthday, id FROM users WHERE birthday IS NOT NULL').all(),
+        );
     },
-    updatePlanning: async function (img) {
-        await pool.query(
-            `UPDATE admin SET img = '${img}' WHERE id=1`, (err) => {
-                if (err) throw err;
-            }
-        )
+    updatePlanning(img) {
+        db().prepare('UPDATE admin SET img = ? WHERE id = 1').run(img);
     },
-    getPlanning: async function (callback) {
-        await pool.query(
-            `SELECT img FROM admin WHERE id=1`, (err, row) => {
-                if (err) throw err;
-                callback(row[0].img)
-            }
-        )
+    getPlanning(callback) {
+        const row = db().prepare('SELECT img FROM admin WHERE id = 1').get();
+        callback(row?.img ?? '');
     },
-    insertHeroesDb: async function (image, nb_stars, element, name, code) {
-        await pool.query(
-            `INSERT INTO hero_db (image,nb_stars,element, name, code) VALUES ('${image}', ${nb_stars}, '${element}', "${name}", '${code}')`, (err) => {
-                if (err) throw err;
-            }
-        )
+    insertHeroesDb(image, nb_stars, element, name, code) {
+        db().prepare(`
+            INSERT INTO hero_db (image, nb_stars, element, name, code)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(name) DO UPDATE SET
+                image = excluded.image,
+                nb_stars = excluded.nb_stars,
+                element = excluded.element,
+                code = excluded.code
+        `).run(image, nb_stars, element, name, code);
+        db().prepare(`
+            INSERT INTO hero (name, image, nb_stars, element, code)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(name) DO UPDATE SET
+                image = excluded.image,
+                nb_stars = excluded.nb_stars,
+                element = excluded.element,
+                code = excluded.code
+        `).run(name, image, nb_stars, element, code);
     },
-    getHero: async function (name) {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero where name = '${name}'`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
+    setHeroMessageLink(name, messageLink) {
+        db().prepare('UPDATE hero SET message_link = ? WHERE name = ?').run(messageLink, name);
     },
-    getHeroes: async function (index) {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero ORDER BY name ASC LIMIT 25 OFFSET ${index} `, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
+    getHero(name) {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM hero WHERE name = ?').all(name),
+        );
     },
-    getuser: async function (name) {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM users WHERE name = '${name}'`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
+    getHeroes(index) {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM hero ORDER BY name ASC LIMIT 25 OFFSET ?').all(index),
+        );
     },
-    getHeroCount: async function () {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT COUNT(*) FROM hero`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows[0]['COUNT(*)']);
-                }
-            });
-        });
+    getAllHeroesList() {
+        return Promise.resolve(
+            db().prepare('SELECT name FROM hero ORDER BY name ASC').all(),
+        );
     },
-    getAllHeroesFromDb: async function () {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero_db ORDER BY name ASC`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
-        });
+    getHeroByExactName(name) {
+        return db().prepare('SELECT name FROM hero WHERE name = ? COLLATE NOCASE').get(name);
     },
-    getHeroDbFromName: async function (name) {
-        return new Promise((resolve, reject) => {
-            pool.query(`SELECT * FROM hero_db WHERE name = "${name}"`, (err, rows) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows[0]);
-                }
-            });
-        });
+    searchHeroesByName(query, limit = 25) {
+        const pattern = `%${query.trim().toLowerCase()}%`;
+        const rows = db().prepare(
+            'SELECT name FROM hero WHERE LOWER(name) LIKE ? ORDER BY name ASC LIMIT ?',
+        ).all(pattern, limit);
+        const total = db().prepare(
+            'SELECT COUNT(*) AS count FROM hero WHERE LOWER(name) LIKE ?',
+        ).get(pattern).count;
+        return {rows, total};
     },
-}
+    getuser(name) {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM users WHERE name = ? OR username = ?').get(name, name),
+        );
+    },
+    getHeroCount() {
+        const row = db().prepare('SELECT COUNT(*) AS count FROM hero').get();
+        return Promise.resolve(row.count);
+    },
+    getAllHeroesFromDb() {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM hero_db ORDER BY name ASC').all(),
+        );
+    },
+    getHeroDbFromName(name) {
+        return Promise.resolve(
+            db().prepare('SELECT * FROM hero_db WHERE name = ?').get(name),
+        );
+    },
+};

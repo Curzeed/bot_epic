@@ -1,19 +1,38 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
+const {MessageFlags} = require('discord.js');
 const dbFunctions = require('../../database/dbFunctions');
 const heroData = require('../../herodata.json');
-module.exports = {
 
+module.exports = {
     data: new SlashCommandBuilder()
         .setName('sync')
-        .setDescription('sync'),
+        .setDescription('Synchronise les héros depuis herodata.json (Fribbels)'),
 
     async execute(interaction) {
-        Object.keys(heroData).forEach(async key => {
-            await dbFunctions.insertHeroesDb(heroData[key].assets.thumbnail, heroData[key].rarity, heroData[key].attribute, heroData[key].name, heroData[key].code)
-        });
-        //data.forEach(async hero => {
-        //    await dbFunctions.insertHeroesDb(hero.assets.thumbnail, hero.rarity, hero.attribute, hero.name)
-        //})
-        await interaction.reply({content: "Sync done !", ephemeral: true});
-    }
-}
+        if (!dbFunctions.isAdmin(interaction.member)) {
+            return dbFunctions.isNotAdmin(interaction);
+        }
+        await interaction.deferReply({flags: MessageFlags.Ephemeral});
+        let count = 0;
+        try {
+            for (const key of Object.keys(heroData)) {
+                const hero = heroData[key];
+                if (!hero?.name || !hero?.assets?.thumbnail) continue;
+                dbFunctions.insertHeroesDb(
+                    hero.assets.thumbnail,
+                    hero.rarity,
+                    hero.attribute,
+                    hero.name,
+                    hero.code,
+                );
+                count++;
+            }
+            await interaction.editReply(
+                `Sync terminé : ${count} héros (images/stats). Les liens de guide Discord (message_link) ne viennent pas de ce fichier.`,
+            );
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply(`Erreur sync : ${error.message}`);
+        }
+    },
+};

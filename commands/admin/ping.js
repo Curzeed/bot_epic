@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const {EmbedBuilder, MessageFlags} = require('discord.js');
 const dbFunctions = require('../../database/dbFunctions')
 
 module.exports = {
@@ -26,9 +26,9 @@ module.exports = {
 //                .setDescription(text ? text : `Bonsoir, n'oubliez pas de faire vos gw ainsi que vos attaques restantes ! \n Bon courage à tous !`)
 //                .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
             if(choiceCtx == 1){
-                let embedDm = new MessageEmbed()
+                let embedDm = new EmbedBuilder()
                 .setTimestamp()
-                .setColor('RED')
+                .setColor(0xff0000)
                 .setTitle('Rappel GW ')
                 .setDescription(text ? text : `Bonsoir, n'oublies pas de faire tes gw ainsi que tes attaques restantes ! \n Bon courage à toi !`)
                 .setImage('https://cdn.discordapp.com/attachments/1046429356332949514/1059149153835421816/4.png');
@@ -38,9 +38,9 @@ module.exports = {
                     await user.send({ content: "Hello l'ami ! Il te reste une ou plusieurs attaques, n'oublies pas de la/les finir !", embeds: [embedDm] })
                 })
             }else{
-                let embedDm = new MessageEmbed()
+                let embedDm = new EmbedBuilder()
                 .setTimestamp()
-                .setColor('RED')
+                .setColor(0xff0000)
                 .setTitle('Missions hebdomadaire ')
                 .setDescription(text ? text : `Coucou, tu peux m'envoyer un screen de tes missions hedbo pour voir où tu en es ?\n La bise`);
                 users.split('>').filter(user => user !== '').forEach(async (use) => {
@@ -51,7 +51,7 @@ module.exports = {
             }
             await interaction.editReply({
                 content: `Le message a bien été envoyé aux gueux !  : ${users}`,
-                ephemeral: true
+                flags: MessageFlags.Ephemeral
             })
         } else {
             dbFunctions.isNotAdmin(interaction);

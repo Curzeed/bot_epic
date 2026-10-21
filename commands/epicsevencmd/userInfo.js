@@ -1,6 +1,6 @@
 const {SlashCommandBuilder} = require('@discordjs/builders');
 const dbFunctions = require('../../database/dbFunctions')
-const {MessageEmbed} = require('discord.js');
+const {EmbedBuilder} = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('uinfo')
@@ -24,13 +24,14 @@ module.exports = {
                 }
             }
             if (user) {
-                const embed = new MessageEmbed()
+                const embed = new EmbedBuilder()
                     .setTitle(`Informations de ${user.username}`)
-                    .setColor('#0099ff')
+                    .setColor(0x0099ff)
                     .addFields(
-                        {name: 'warns', value: user.warns, inline: true},
+                        {name: 'warns', value: String(user.warns), inline: true},
                         {name: 'guild', value: guild(), inline: true},
-                    )
+                    );
+                return interaction.reply({embeds: [embed]});
             }
         }
     }
